@@ -2,7 +2,7 @@ import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 interface GraphCanvasProps {
-  data: any[];
+	data: { x: number; y: number }[];
   range: { min: number; max: number };
   title?: string;
 }
@@ -27,7 +27,7 @@ const GraphCanvas: React.FC<GraphCanvasProps> = ({ data, range, title }) => {
           <Tooltip 
             contentStyle={{ backgroundColor: '#1e293b', color: '#fff', borderRadius: '8px' }}
             itemStyle={{ color: '#60a5fa' }}
-            formatter={(value: number) => value.toFixed(2)}
+            formatter={(value: number | undefined) => value ? value.toFixed(2) : ''}
           />
           
           <ReferenceLine x={0} stroke="#94a3b8" />
