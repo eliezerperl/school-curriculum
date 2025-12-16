@@ -9,7 +9,7 @@ interface GraphCanvasProps {
 
 const GraphCanvas: React.FC<GraphCanvasProps> = ({ data, range, title }) => {
   return (
-    <div className="h-[400px] w-full bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
+    <div className="h-100 w-full bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
       {title && <h3 className="text-slate-500 text-sm font-semibold mb-2">{title}</h3>}
       
       <ResponsiveContainer width="100%" height="100%">
