@@ -5,7 +5,7 @@ const AppLayout = () => {
   return (
     <div className="flex min-h-screen bg-slate-50">
       {/* Sidebar */}
-      <div className="w-64 bg-slate-900 text-slate-300 flex flex-col">
+      <div className="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0">
         <div className="p-6 text-white font-bold text-xl flex items-center gap-2">
           <BookOpen /> My Studies
         </div>
@@ -20,8 +20,8 @@ const AppLayout = () => {
         </nav>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 p-8 overflow-y-auto">
+      {/* Main Content Area - Reduced Padding here */}
+      <div className="flex-1 p-4 overflow-y-auto">
         <Outlet />
       </div>
     </div>

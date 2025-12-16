@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResponsiveContainer, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Area, Line, ReferenceDot, ReferenceLine } from 'recharts';
-import type { GraphPoint } from '../types'; // Import the type
+import type { GraphPoint } from '../types';
 
 interface Props {
   data: GraphPoint[];
@@ -13,13 +13,11 @@ interface Props {
 }
 
 export const SupplyDemandGraph: React.FC<Props> = ({ data, showTax, eqData }) => {
-  // ... (The rest of the code remains the same)
   return (
-    <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100 h-125 w-full">
+    // UPDATED HEIGHT CLASSES BELOW:
+    <div className="bg-white p-4 rounded-xl shadow-lg border border-slate-100 h-[60vh] min-h-125 w-full flex flex-col">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={data} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-           {/* ... chart content ... */}
-           {/* (Make sure to keep the Tooltip formatter fix we made earlier!) */}
+        <ComposedChart data={data} margin={{ top: 20, right: 30, bottom: 20, left: 10 }}>
            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
            <XAxis dataKey="q" label={{ value: 'Quantity', position: 'insideBottomRight', offset: -10 }} type="number" />
            <YAxis label={{ value: 'Price', angle: -90, position: 'insideLeft' }} />
@@ -32,7 +30,7 @@ export const SupplyDemandGraph: React.FC<Props> = ({ data, showTax, eqData }) =>
             }}
             labelFormatter={(label) => `Q: ${label}`}
           />
-           {/* ... rest of lines/areas ... */}
+
            <Area type="monotone" dataKey="csFill" stroke="none" fill="#3b82f6" fillOpacity={0.2} name="Consumer Surplus" />
            <Area type="monotone" dataKey="psFill" stroke="none" fill="#10b981" fillOpacity={0.2} name="Producer Surplus" />
            <Area type="monotone" dataKey="taxFill" stroke="none" fill="#f97316" fillOpacity={0.3} name="Tax Revenue" />
@@ -42,7 +40,7 @@ export const SupplyDemandGraph: React.FC<Props> = ({ data, showTax, eqData }) =>
            {showTax && <Line type="monotone" dataKey="supplyTax" stroke="#f97316" strokeWidth={3} dot={false} name="Supply + Tax" />}
 
            <ReferenceDot x={eqData.eqQ} y={eqData.priceConsumersPay} r={5} fill="#2563eb" stroke="none" />
-           {showTax && <ReferenceDot x={eqData.eqQ} y={eqData.priceSuppliersKeep} r={5} fill="#10b981" stroke="none" />}
+           {showTax && <ReferenceDot x={eqData.eqQ} y={eqData.priceSuppliersKeep} r={5} fill="#10b981" stroke="none" /> }
            <ReferenceLine x={eqData.eqQ} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: `Q*=${eqData.eqQ.toFixed(1)}`, position: 'insideTopLeft', fill: '#64748b', fontSize: 12 }} />
 
         </ComposedChart>

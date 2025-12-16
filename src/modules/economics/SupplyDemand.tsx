@@ -1,16 +1,16 @@
+import React from 'react';
 import { useSupplyDemandLogic } from './hooks/useSupplyDemandLogic';
 import { SupplyDemandGraph } from './components/SupplyDemandGraph';
 import { SupplyDemandControls } from './components/SupplyDemandControls';
 import { MetricCard } from './components/EconomicsUI';
 
 const SupplyDemand = () => {
-  // 1. Get Logic from Hook
   const { params, setters, graphData } = useSupplyDemandLogic();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 h-full flex flex-col">
       
-      {/* 2. Top Metrics Bar */}
+      {/* 1. Metrics Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard label="Consumer Surplus" value={graphData.metrics.csValue} color="text-blue-600" bg="bg-blue-50" />
         <MetricCard label="Producer Surplus" value={graphData.metrics.psValue} color="text-emerald-600" bg="bg-emerald-50" />
@@ -18,10 +18,13 @@ const SupplyDemand = () => {
         <MetricCard label="Total Welfare" value={graphData.metrics.totalWelfare} color="text-slate-800" bg="bg-slate-100" />
       </div>
 
-      {/* 3. Main Layout: Graph Left, Controls Right */}
-      <div className="flex flex-col lg:flex-row gap-6">
+      {/* 2. Main Layout 
+          - On XL screens (Desktops): Side by Side
+          - On L/M screens (Laptops): Stacked (Graph on top, full width)
+      */}
+      <div className="flex flex-col xl:flex-row gap-6 flex-1 min-h-0">
         
-        {/* Left Side: The Graph (Takes up remaining space) */}
+        {/* Graph Area */}
         <div className="flex-1 min-w-0">
           <SupplyDemandGraph 
             data={graphData.data} 
@@ -34,8 +37,8 @@ const SupplyDemand = () => {
           />
         </div>
 
-        {/* Right Side: The Controls (Fixed width on desktop) */}
-        <div className="w-full lg:w-80 shrink-0">
+        {/* Controls Area */}
+        <div className="w-full xl:w-80 shrink-0">
           <SupplyDemandControls params={params} setters={setters} />
         </div>
 
