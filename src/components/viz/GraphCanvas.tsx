@@ -34,6 +34,7 @@ const GraphCanvas: React.FC<GraphCanvasProps> = ({ data, range, title }) => {
           <ReferenceLine y={0} stroke="#94a3b8" />
 
           <Line 
+									
             type="monotone" 
             dataKey="y" 
             stroke="#2563eb" 
