@@ -10,7 +10,7 @@ interface Props {
 
 export const SupplyDemandControls: React.FC<Props> = ({ params, setters }) => {
   return (
-    <div className="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-h-[65vh] overflow-y-auto">
+    <div className="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-h-[66vh] overflow-y-auto">
       {/* Demand */}
       <ControlSection
         title="Demand"

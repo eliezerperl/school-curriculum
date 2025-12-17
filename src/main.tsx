@@ -1,22 +1,20 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
+import { Analytics } from "@vercel/analytics/react";
 import './index.css';
 
-import AppLayout from './components/layout/AppLayout';
-import ComingSoon from './modules/ComingSoon';
-import { EconomicsPage } from './modules/economics/pages/EconomicsPage';
+// Import Layout and Routes separately
+import { AppLayout } from './components/layout/AppLayout';
+import { AppRoutes } from './shared/AppRoutes';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <Analytics />
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<AppLayout />}>
-          <Route index element={<Navigate to="/economics" replace />} />
-          <Route path="economics" element={<EconomicsPage />} />
-          <Route path="calculus" element={<ComingSoon />} />
-        </Route>
-      </Routes>
+      <AppLayout>
+        <AppRoutes />
+      </AppLayout>
     </BrowserRouter>
   </StrictMode>
 );

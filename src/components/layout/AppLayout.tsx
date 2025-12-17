@@ -1,16 +1,17 @@
-import { EconomicsPage } from '../../modules/economics/pages/EconomicsPage';
+import React from 'react';
 import { Navigation } from './Navigation';
 
-function App() {
-  return (
-    <div className="bg-gray-50 min-h-screen">
-      {/* Global Navigation (Left Sidebar) */}
-      <Navigation />
-
-      {/* Main Page Content */}
-      <EconomicsPage />
-    </div>
-  );
+// Define that this component expects 'children'
+interface AppLayoutProps {
+  children: React.ReactNode;
 }
 
-export default App;
+export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+
+      <main className="relative z-0">{children}</main>
+    </div>
+  );
+};
