@@ -1,15 +1,37 @@
 import React, { useState } from 'react';
 import { Menu, X, BookOpen, TrendingUp, Sigma, Code } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const Navigation: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Example list of your current and future modules
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname.startsWith(path);
+
   const modules = [
-    { name: 'Economics', icon: <TrendingUp size={18} />, active: true },
-    { name: 'Calculus', icon: <Sigma size={18} />, active: false },
-    { name: 'Python', icon: <Code size={18} />, active: false },
+    {
+      name: 'Economics',
+      icon: <TrendingUp size={18} />,
+      path: '/economics',
+    },
+    {
+      name: 'Calculus',
+      icon: <Sigma size={18} />,
+      path: '/calculus',
+    },
+    {
+      name: 'Python',
+      icon: <Code size={18} />,
+      path: '/python', // Placeholder for later
+    },
   ];
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    setIsOpen(false); // Close drawer after clicking
+  };
 
   return (
     <>
@@ -61,18 +83,24 @@ export const Navigation: React.FC = () => {
             Modules
           </p>
 
-          {modules.map((mod) => (
-            <button
-              key={mod.name}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                mod.active
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-              }`}>
-              {mod.icon}
-              <span className="font-medium">{mod.name}</span>
-            </button>
-          ))}
+          {modules.map((mod) => {
+            // Check if this module is the current one
+            const active = isActive(mod.path);
+
+            return (
+              <button
+                key={mod.name}
+                onClick={() => handleNavigate(mod.path)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  active
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                }`}>
+                {mod.icon}
+                <span className="font-medium">{mod.name}</span>
+              </button>
+            );
+          })}
         </nav>
 
         {/* Footer / User Info */}
