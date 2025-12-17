@@ -12,7 +12,7 @@ export const SupplyDemandControls: React.FC<Props> = ({ params, setters }) => {
   return (
     <div className="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-h-[66vh] overflow-y-auto">
       {/* Surplus Checkbox */}
-      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
+      <div className="flex items-center gap-2 border-b pb-2 border-slate-100">
         <input
           type="checkbox"
           checked={params.showSurplus}
