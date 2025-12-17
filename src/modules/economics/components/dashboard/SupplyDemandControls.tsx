@@ -11,6 +11,18 @@ interface Props {
 export const SupplyDemandControls: React.FC<Props> = ({ params, setters }) => {
   return (
     <div className="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-h-[66vh] overflow-y-auto">
+      {/* Surplus Checkbox */}
+      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
+        <input
+          type="checkbox"
+          checked={params.showSurplus}
+          onChange={(e) => setters.setShowSurplus(e.target.checked)}
+          className="w-4 h-4 accent-purple-500"
+        />
+        <span className="text-sm font-medium flex items-center gap-2">
+          <Layers size={16} /> Show Surplus Areas
+        </span>
+      </div>
       {/* Demand */}
       <ControlSection
         title="Demand"
@@ -82,18 +94,6 @@ export const SupplyDemandControls: React.FC<Props> = ({ params, setters }) => {
             color="accent-orange-500"
           />
         )}
-
-        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
-          <input
-            type="checkbox"
-            checked={params.showSurplus}
-            onChange={(e) => setters.setShowSurplus(e.target.checked)}
-            className="w-4 h-4 accent-purple-500"
-          />
-          <span className="text-sm font-medium flex items-center gap-2">
-            <Layers size={16} /> Show Surplus Areas
-          </span>
-        </div>
       </div>
     </div>
   );
