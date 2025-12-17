@@ -1,7 +1,7 @@
-import { useSupplyDemandLogic } from '../hooks/useSupplyDemandLogic';
+import { useSupplyDemandLogic } from '../../hooks/useSupplyDemandLogic';
 import { SupplyDemandGraph } from './SupplyDemandGraph';
 import { SupplyDemandControls } from './SupplyDemandControls';
-import { MetricCard } from './EconomicsUI';
+import { MetricCard } from '../ui/EconomicsUI';
 
 export const SupplyDemand = () => {
   const { params, setters, graphData } = useSupplyDemandLogic();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEconCalculator } from '../hooks/useEconCalculator';
+import { useEconCalculator } from '../../hooks/useEconCalculator';
 
 export const EconCalculator: React.FC = () => {
   // WIRING: This pulls all the data and functions from your hook.
@@ -10,7 +10,7 @@ export const EconCalculator: React.FC = () => {
     setSubsidy,
     result,
     handleCalculate,
-    resetCalculator
+    resetCalculator,
   } = useEconCalculator();
 
   return (
@@ -21,7 +21,6 @@ export const EconCalculator: React.FC = () => {
 
       {/* --- INPUT SECTION --- */}
       <div className="space-y-4 mb-6">
-        
         {/* Price Input */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">
@@ -55,22 +54,19 @@ export const EconCalculator: React.FC = () => {
             If left blank, we use the symbol <strong>S</strong>.
           </p>
         </div>
-
       </div>
 
       {/* --- BUTTON SECTION --- */}
       <div className="flex gap-3 mb-6">
         <button
           onClick={handleCalculate}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200"
-        >
+          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">
           Calculate Effective Cost
         </button>
-        
+
         <button
           onClick={resetCalculator}
-          className="bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold py-3 px-4 rounded-lg transition duration-200"
-        >
+          className="bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold py-3 px-4 rounded-lg transition duration-200">
           Reset
         </button>
       </div>
@@ -81,9 +77,7 @@ export const EconCalculator: React.FC = () => {
           <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">
             Result
           </p>
-          <div className="text-3xl font-mono text-gray-900">
-            {result}
-          </div>
+          <div className="text-3xl font-mono text-gray-900">{result}</div>
           <p className="text-sm text-gray-600 mt-2">
             This is the new effective price for suppliers.
           </p>

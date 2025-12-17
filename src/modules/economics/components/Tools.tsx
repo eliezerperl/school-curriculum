@@ -1,82 +1,143 @@
 import React, { useState } from 'react';
-import { Calculator, X, ChevronLeft, TrendingUp } from 'lucide-react';
-import { EconCalculator } from './EconCalculator';
-import { CurveShifter } from './CurveShifter';
+import {
+  Calculator,
+  X,
+  TrendingUp,
+  ChevronLeft,
+  ArrowLeft,
+} from 'lucide-react';
+import { EconCalculator } from './tools/EconCalculator';
+import { CurveShifter } from './tools/CurveShifter';
+
+// Define the possible views
+type ToolView = 'menu' | 'intuition' | 'calculator';
 
 export const Tools: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [currentView, setCurrentView] = useState<ToolView>('menu');
+
+  // Helper to close sidebar and reset view
+  const handleClose = () => {
+    setIsOpen(false);
+    setTimeout(() => setCurrentView('menu'), 300); // Reset after animation
+  };
 
   return (
     <>
-      {/* 1. Trigger Button */}
-      <div 
-        className={`fixed right-0 top-1/12 z-40 transition-transform duration-300 ${
-          isOpen ? 'translate-x-full' : 'translate-x-0'
-        }`}
-      >
-        <button
-          onClick={() => setIsOpen(true)}
-          className="bg-blue-600 text-white p-3 rounded-l-xl shadow-lg hover:bg-blue-700 flex flex-col items-center gap-2"
-        >
-          <ChevronLeft size={20} />
-          <Calculator size={24} />
-          <span className="text-xs font-bold writing-vertical-lr py-2">
-            TOOLS
-          </span>
-        </button>
+      {/* 1. TRIGGER BUTTON (Hamburger Icon) */}
+      <div className="fixed top-6 right-6 z-50">
+        {!isOpen && (
+          <button
+            onClick={() => setIsOpen(true)}
+            className="bg-white p-3 rounded-full shadow-lg border border-gray-200 text-slate-700 hover:bg-slate-50 transition-all hover:scale-105"
+            title="Open Tools">
+            <Calculator size={24} />
+          </button>
+        )}
       </div>
 
-      {/* 2. Overlay */}
+      {/* 2. OVERLAY */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
-          onClick={() => setIsOpen(false)}
+          onClick={handleClose}
         />
       )}
 
-      {/* 3. Sidebar Drawer */}
-      <div 
-        className={`fixed top-0 right-0 h-full w-auto bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-l border-gray-200 flex flex-col ${
+      {/* 3. SIDEBAR DRAWER */}
+      <div
+        className={`fixed top-0 right-0 h-full w-auto min-w-88 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-l border-gray-200 flex flex-col ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
+        }`}>
         {/* Header */}
-        <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
-          <h2 className="font-bold text-slate-800 flex items-center gap-2">
-            <Calculator size={20} className="text-blue-600"/>
-            Quick Tools
-          </h2>
-          <button 
-            onClick={() => setIsOpen(false)}
-            className="p-1 hover:bg-gray-200 rounded-full text-gray-500 transition"
-          >
-            <X size={20} />
+        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+          {/* Dynamic Header: Show "Back" button if inside a tool */}
+          <div className="flex items-center gap-2">
+            {currentView !== 'menu' && (
+              <button
+                onClick={() => setCurrentView('menu')}
+                className="mr-1 hover:bg-gray-200 p-1 rounded transition">
+                <ArrowLeft size={18} />
+              </button>
+            )}
+            <h2 className="font-bold text-slate-800 text-lg">
+              {currentView === 'menu'
+                ? 'Quick Tools'
+                : currentView === 'intuition'
+                ? 'Intuition Sandbox'
+                : 'Calculator'}
+            </h2>
+          </div>
+
+          <button
+            onClick={handleClose}
+            className="p-2 hover:bg-gray-200 rounded-full text-gray-500 transition">
+            <X size={24} />
           </button>
         </div>
 
-        {/* Content - SCROLLABLE */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-8">
-          
-          {/* Section 1: The Intuition Builder */}
-          <section>
-             <div className="flex items-center gap-2 mb-2 text-slate-800 font-semibold">
-                <TrendingUp size={16} /> 
-                <span>Intuition Sandbox</span>
-             </div>
-             <CurveShifter />
-          </section>
+        {/* Content Area */}
+        <div className="p-6 overflow-y-auto flex-1">
+          {/* VIEW 1: THE MENU (List of Buttons) */}
+          {currentView === 'menu' && (
+            <div className="space-y-3">
+              <p className="text-sm text-slate-500 mb-4">
+                Select a tool to use:
+              </p>
 
-          <hr className="border-gray-100"/>
+              <button
+                onClick={() => setCurrentView('intuition')}
+                className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group text-left">
+                <div className="bg-blue-100 p-3 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <TrendingUp size={24} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-800">
+                    Intuition Sandbox
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Visualize shifts in Supply & Demand
+                  </p>
+                </div>
+                <ChevronLeft
+                  className="ml-auto rotate-180 text-slate-300"
+                  size={20}
+                />
+              </button>
 
-          {/* Section 2: The Calculator */}
-          <section>
-            <div className="flex items-center gap-2 mb-2 text-slate-800 font-semibold">
-                <Calculator size={16} /> 
-                <span>Math Helper</span>
-             </div>
-            <EconCalculator />
-          </section>
+              <button
+                onClick={() => setCurrentView('calculator')}
+                className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all group text-left">
+                <div className="bg-emerald-100 p-3 rounded-lg text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                  <Calculator size={24} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-800">Math Helper</h3>
+                  <p className="text-xs text-slate-500">
+                    Quick crunch numbers for assignments
+                  </p>
+                </div>
+                <ChevronLeft
+                  className="ml-auto rotate-180 text-slate-300"
+                  size={20}
+                />
+              </button>
+            </div>
+          )}
 
+          {/* VIEW 2: CURVE SHIFTER */}
+          {currentView === 'intuition' && (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+              <CurveShifter />
+            </div>
+          )}
+
+          {/* VIEW 3: CALCULATOR */}
+          {currentView === 'calculator' && (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+              <EconCalculator />
+            </div>
+          )}
         </div>
       </div>
     </>
