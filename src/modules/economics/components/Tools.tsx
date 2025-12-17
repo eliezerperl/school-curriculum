@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Calculator, X, ChevronLeft } from 'lucide-react';
+import { Calculator, X, ChevronLeft, TrendingUp } from 'lucide-react';
 import { EconCalculator } from './EconCalculator';
+import { CurveShifter } from './CurveShifter';
 
 export const Tools: React.FC = () => {
-  // The state lives HERE now, not in the main page
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      {/* 1. The Trigger Button (Visible when closed) */}
+      {/* 1. Trigger Button */}
       <div 
         className={`fixed right-0 top-1/12 z-40 transition-transform duration-300 ${
           isOpen ? 'translate-x-full' : 'translate-x-0'
@@ -17,7 +17,6 @@ export const Tools: React.FC = () => {
         <button
           onClick={() => setIsOpen(true)}
           className="bg-blue-600 text-white p-3 rounded-l-xl shadow-lg hover:bg-blue-700 flex flex-col items-center gap-2"
-          title="Open Quick Tools"
         >
           <ChevronLeft size={20} />
           <Calculator size={24} />
@@ -27,22 +26,22 @@ export const Tools: React.FC = () => {
         </button>
       </div>
 
-      {/* 2. The Overlay (Backdrop) */}
+      {/* 2. Overlay */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
-          onClick={() => setIsOpen(false)} // Click outside to close
+          onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* 3. The Sidebar Drawer */}
+      {/* 3. Sidebar Drawer */}
       <div 
-        className={`fixed top-0 right-0 h-full w-auto bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-l border-gray-200 ${
+        className={`fixed top-0 right-0 h-full w-auto bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-l border-gray-200 flex flex-col ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         {/* Header */}
-        <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+        <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
           <h2 className="font-bold text-slate-800 flex items-center gap-2">
             <Calculator size={20} className="text-blue-600"/>
             Quick Tools
@@ -55,14 +54,29 @@ export const Tools: React.FC = () => {
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto h-full pb-20">
-           <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-700 mb-6 border border-blue-100">
-            <strong>Tip:</strong> Use this scratchpad to calculate values without resetting your graph.
-          </div>
+        {/* Content - SCROLLABLE */}
+        <div className="p-6 overflow-y-auto flex-1 space-y-8">
           
-          {/* The Calculator itself */}
-          <EconCalculator />
+          {/* Section 1: The Intuition Builder */}
+          <section>
+             <div className="flex items-center gap-2 mb-2 text-slate-800 font-semibold">
+                <TrendingUp size={16} /> 
+                <span>Intuition Sandbox</span>
+             </div>
+             <CurveShifter />
+          </section>
+
+          <hr className="border-gray-100"/>
+
+          {/* Section 2: The Calculator */}
+          <section>
+            <div className="flex items-center gap-2 mb-2 text-slate-800 font-semibold">
+                <Calculator size={16} /> 
+                <span>Math Helper</span>
+             </div>
+            <EconCalculator />
+          </section>
+
         </div>
       </div>
     </>

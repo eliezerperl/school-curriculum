@@ -1,16 +1,16 @@
 import React from 'react';
 import { TrendingUp, DollarSign, Layers } from 'lucide-react';
 import { Slider, ControlSection } from './EconomicsUI';
-import type { EconomicsParams, EconomicsSetters } from '../types'; // Import the types
+import type { EconomicsParams, EconomicsSetters } from '../types';
 
 interface Props {
-  params: EconomicsParams;   // <--- STRICT TYPE
-  setters: EconomicsSetters; // <--- STRICT TYPE
+  params: EconomicsParams;  
+  setters: EconomicsSetters; 
 }
 
 export const SupplyDemandControls: React.FC<Props> = ({ params, setters }) => {
   return (
-    <div className="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-fit">
+    <div className="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-h-[65vh] overflow-y-auto">
       {/* Demand */}
       <ControlSection title="Demand" color="text-blue-600" icon={<TrendingUp className="rotate-180" />}>
         <Slider label="Intercept" val={params.dIntercept} set={setters.setDIntercept} min={50} max={200} />

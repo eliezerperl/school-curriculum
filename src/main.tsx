@@ -5,7 +5,7 @@ import './index.css';
 
 import AppLayout from './components/layout/AppLayout';
 import ComingSoon from './modules/ComingSoon';
-import EconomicsPage from './modules/economics/pages/EconomicsPage';
+import { EconomicsPage } from './modules/economics/pages/EconomicsPage';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

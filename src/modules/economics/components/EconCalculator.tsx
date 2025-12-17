@@ -1,5 +1,4 @@
 import React from 'react';
-// Import the "Brain" (the hook) we just created
 import { useEconCalculator } from '../hooks/useEconCalculator';
 
 export const EconCalculator: React.FC = () => {
