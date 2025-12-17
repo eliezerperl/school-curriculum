@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TrendingUp, Globe, BarChart3 } from 'lucide-react'; 
 
 import { SupplyDemand } from '../components/dashboard/SupplyDemand';
@@ -8,6 +8,15 @@ type TabId = 'micro' | 'macro' | 'data';
 
 export const EconomicsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('micro');
+
+		useEffect(() => {
+			document.title = "Economics | Supply & Demand"; // Set your desired title here
+
+			// Optional: Reset title when leaving this page
+			return () => {
+					document.title = "EconDash"; // Fallback title
+			};
+	}, []);
 
   return (
     <div className="min-h-screen bg-gray-50 relative overflow-hidden">
