@@ -140,8 +140,19 @@ export const SupplyDemandGraph: React.FC<Props> = ({
             strokeDasharray="3 3"
             label={{
               value: `Q*=${eqData.eqQ.toFixed(1)}`,
-              position: 'insideTopLeft',
+              position: 'insideBottomLeft',
               fill: '#64748b',
+              fontSize: 12,
+            }}
+          />
+          <ReferenceLine
+            y={eqData.priceConsumersPay}
+            stroke="#94a3b8"
+            strokeDasharray="3 3"
+            label={{
+              value: `P*=${eqData.priceConsumersPay.toFixed(2)}`,
+              position: 'insideTopLeft',
+              fill: 'black',
               fontSize: 12,
             }}
           />

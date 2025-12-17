@@ -1,7 +1,11 @@
 import React from 'react';
-import { TrendingUp, DollarSign, Layers } from 'lucide-react';
-import { Slider, ControlSection } from '../ui/EconomicsUI';
 import type { EconomicsParams, EconomicsSetters } from '../../types';
+
+// Import Mini Modules
+import { ViewSettings } from './controls/ViewSettings';
+import { DemandSection } from './controls/DemandSection';
+import { SupplySection } from './controls/SupplySection';
+import { PolicySection } from './controls/PolicySection';
 
 interface Props {
   params: EconomicsParams;
@@ -10,91 +14,39 @@ interface Props {
 
 export const SupplyDemandControls: React.FC<Props> = ({ params, setters }) => {
   return (
-    <div className="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-h-[66vh] overflow-y-auto">
-      {/* Surplus Checkbox */}
-      <div className="flex items-center gap-2 border-b pb-2 border-slate-100">
-        <input
-          type="checkbox"
-          checked={params.showSurplus}
-          onChange={(e) => setters.setShowSurplus(e.target.checked)}
-          className="w-4 h-4 accent-purple-500"
-        />
-        <span className="text-sm font-medium flex items-center gap-2">
-          <Layers size={16} /> Show Surplus Areas
-        </span>
-      </div>
-      {/* Demand */}
-      <ControlSection
-        title="Demand"
-        color="text-blue-600"
-        icon={<TrendingUp className="rotate-180" />}>
-        <Slider
-          label="Intercept"
-          val={params.dIntercept}
-          set={setters.setDIntercept}
-          min={50}
-          max={200}
-        />
-        <Slider
-          label="Slope"
-          val={params.dSlope}
-          set={setters.setDSlope}
-          min={0.5}
-          max={3}
-          step={0.1}
-        />
-      </ControlSection>
+    <div className="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-[68vh] overflow-y-auto custom-scrollbar">
+      
+      {/* 1. View Settings */}
+      <ViewSettings 
+        showSurplus={params.showSurplus} 
+        setShowSurplus={setters.setShowSurplus} 
+      />
 
-      {/* Supply */}
-      <ControlSection
-        title="Supply"
-        color="text-emerald-600"
-        icon={<TrendingUp />}>
-        <Slider
-          label="Intercept"
-          val={params.sIntercept}
-          set={setters.setSIntercept}
-          min={0}
-          max={50}
-        />
-        <Slider
-          label="Slope"
-          val={params.sSlope}
-          set={setters.setSSlope}
-          min={0.5}
-          max={3}
-          step={0.1}
-        />
-      </ControlSection>
+      {/* 2. Demand */}
+      <DemandSection 
+        intercept={params.dIntercept} 
+        slope={params.dSlope} 
+        setIntercept={setters.setDIntercept} 
+        setSlope={setters.setDSlope} 
+      />
 
-      {/* Policy */}
-      <div className="space-y-4 pt-4 border-t border-slate-100">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-orange-600 font-bold">
-            <DollarSign size={20} /> Policy
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={params.showTax}
-              onChange={(e) => setters.setShowTax(e.target.checked)}
-              className="w-4 h-4 accent-orange-500"
-            />
-            <span className="text-sm">Tax</span>
-          </div>
-        </div>
+      {/* 3. Supply */}
+      <SupplySection 
+        intercept={params.sIntercept} 
+        slope={params.sSlope} 
+        setIntercept={setters.setSIntercept} 
+        setSlope={setters.setSSlope} 
+      />
 
-        {params.showTax && (
-          <Slider
-            label="Tax Amount"
-            val={params.tax}
-            set={setters.setTax}
-            min={0}
-            max={50}
-            color="accent-orange-500"
-          />
-        )}
-      </div>
+      {/* 4. Policy */}
+      <PolicySection 
+        showTax={params.showTax} 
+        setShowTax={setters.setShowTax} 
+        tax={params.tax} 
+        setTax={setters.setTax} 
+      />
+
+
     </div>
   );
 };

@@ -7,7 +7,7 @@ export const SupplyDemand = () => {
   const { params, setters, graphData } = useSupplyDemandLogic();
 
   return (
-    <div className="space-y-4 h-full flex flex-col">
+    <div className="space-y-4 flex flex-col">
       {/* 1. Metrics Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard
@@ -42,7 +42,7 @@ export const SupplyDemand = () => {
           - On XL screens (Desktops): Side by Side
           - On L/M screens (Laptops): Stacked (Graph on top, full width)
       */}
-      <div className="flex flex-col xl:flex-row gap-6 flex-1 min-h-0">
+      <div className="flex flex-col xl:flex-row gap-6 flex-1">
         {/* Graph Area */}
         <div className="flex-1 min-w-0">
           <SupplyDemandGraph
@@ -64,5 +64,3 @@ export const SupplyDemand = () => {
     </div>
   );
 };
-
-export default SupplyDemand;

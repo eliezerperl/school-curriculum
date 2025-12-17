@@ -1,4 +1,5 @@
-import React from 'react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
 
 // --- Metric Card ---
 interface MetricCardProps {
@@ -7,9 +8,16 @@ interface MetricCardProps {
   color: string;
   bg: string;
 }
-export const MetricCard: React.FC<MetricCardProps> = ({ label, value, color, bg }) => (
+export const MetricCard: React.FC<MetricCardProps> = ({
+  label,
+  value,
+  color,
+  bg,
+}) => (
   <div className={`${bg} p-4 rounded-lg border border-slate-100`}>
-    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</div>
+    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+      {label}
+    </div>
     <div className={`text-2xl font-bold ${color}`}>${value.toFixed(0)}</div>
   </div>
 );
@@ -20,15 +28,40 @@ interface ControlSectionProps {
   color: string;
   icon: React.ReactNode;
   children: React.ReactNode;
+  defaultOpen?: boolean;
 }
-export const ControlSection: React.FC<ControlSectionProps> = ({ title, color, icon, children }) => (
-  <div className="space-y-4">
-    <div className={`flex items-center gap-2 ${color} font-bold`}>
-      {icon} {title}
+export const ControlSection: React.FC<ControlSectionProps> = ({
+  title,
+  color,
+  icon,
+  children,
+  defaultOpen = false,
+}) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <div className="border border-slate-100 rounded-lg overflow-hidden transition-all duration-300">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between bg-slate-50 p-3 hover:bg-slate-100 transition-colors">
+        <div className={`flex items-center gap-2 font-bold ${color}`}>
+          {icon}
+          <span>{title}</span>
+        </div>
+
+        <div className="text-slate-400">
+          {isOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+        </div>
+      </button>
+
+      <div
+        className={`bg-white px-3 transition-all duration-300 ease-in-out ${
+          isOpen ? 'max-h-96 py-3 opacity-100' : 'max-h-0 py-0 opacity-0'
+        }`}>
+        <div className="space-y-4">{children}</div>
+      </div>
     </div>
-    {children}
-  </div>
-);
+  );
+};
 
 // --- Slider Input ---
 interface SliderProps {
@@ -41,19 +74,19 @@ interface SliderProps {
   color?: string;
 }
 
-export const Slider: React.FC<SliderProps> = ({ 
-  label, 
-  val, 
-  set, 
-  min, 
-  max, 
-  step = 1, 
-  color = 'accent-blue-600' 
+export const Slider: React.FC<SliderProps> = ({
+  label,
+  val,
+  set,
+  min,
+  max,
+  step = 1,
+  color = 'accent-blue-600',
 }) => (
   <div>
     <div className="flex justify-between items-center mb-1">
       <label className="text-xs font-semibold text-slate-500">{label}</label>
-      
+
       {/* This INPUT replaces the old <span ...>{val}</span> 
         It allows typing any number, even outside the slider range.
       */}
