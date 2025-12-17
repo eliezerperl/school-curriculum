@@ -16,6 +16,7 @@ import type { GraphPoint } from '../../types';
 interface Props {
   data: GraphPoint[];
   showTax: boolean;
+  showSubsidy: boolean;
   eqData: {
     eqQ: number;
     priceConsumersPay: number;
@@ -26,6 +27,7 @@ interface Props {
 export const SupplyDemandGraph: React.FC<Props> = ({
   data,
   showTax,
+  showSubsidy,
   eqData,
 }) => {
   return (
@@ -50,6 +52,15 @@ export const SupplyDemandGraph: React.FC<Props> = ({
           />
 
           <Tooltip
+          // 1. This tells Recharts: "If the formatter returns null, do not even render the row"
+  filterNull={true}
+
+  // 2. We explicitly filter the items list before it even tries to render
+  itemSorter={(item) => {
+    // Only allow items that are numbers and NOT arrays (surplus fills are arrays)
+    if (Array.isArray(item.value) || item.value === null) return -1;
+    return 1;
+  }}
             contentStyle={{
               backgroundColor: 'rgba(255, 255, 255, 0.95)',
               borderRadius: '8px',
@@ -58,7 +69,7 @@ export const SupplyDemandGraph: React.FC<Props> = ({
             }}
             formatter={(value: number | number[] | undefined) => {
               if (value === undefined || value === null || Array.isArray(value))
-                return [];
+                return null;
               return Number(value).toFixed(2);
             }}
             labelFormatter={(label) => `Q: ${label}`}
@@ -87,6 +98,14 @@ export const SupplyDemandGraph: React.FC<Props> = ({
             fill="#f97316"
             fillOpacity={0.3}
             name="Tax Revenue"
+          />
+          <Area
+            type="monotone"
+            dataKey="subsidyFill"
+            stroke="none"
+            fill="#9333ea" // Purple color matching the controls
+            fillOpacity={0.3}
+            name="Subsidy Cost"
           />
 
           <Line
@@ -117,6 +136,17 @@ export const SupplyDemandGraph: React.FC<Props> = ({
               name="Supply + Tax"
             />
           )}
+          {/* Subsidy Line (Supply - Subsidy) */}
+          {showSubsidy && (
+            <Line
+              type="monotone"
+              dataKey="supplySubsidy"
+              stroke="#9333ea" // Purple
+              strokeWidth={3}
+              dot={false}
+              name="Supply - Subsidy"
+            />
+          )}
 
           <ReferenceDot
             x={eqData.eqQ}
@@ -134,6 +164,16 @@ export const SupplyDemandGraph: React.FC<Props> = ({
               stroke="none"
             />
           )}
+          {showSubsidy && (
+            <ReferenceDot
+              x={eqData.eqQ}
+              y={eqData.priceSuppliersKeep}
+              r={5}
+              fill="#10b981"
+              stroke="white"
+            />
+          )}
+
           <ReferenceLine
             x={eqData.eqQ}
             stroke="#94a3b8"

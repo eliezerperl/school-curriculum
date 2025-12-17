@@ -30,6 +30,14 @@ export const SupplyDemand = () => {
             bg="bg-orange-50"
           />
         )}
+        {params.showSubsidy && (
+          <MetricCard
+            label="Subsidy Cost"
+            value={graphData.metrics.subsidyCost}
+            color="text-purple-600"
+            bg="bg-purple-50"
+          />
+        )}
         <MetricCard
           label="Total Welfare"
           value={graphData.metrics.totalWelfare}
@@ -48,6 +56,7 @@ export const SupplyDemand = () => {
           <SupplyDemandGraph
             data={graphData.data}
             showTax={params.showTax}
+            showSubsidy={params.showSubsidy}
             eqData={{
               eqQ: graphData.eqQ,
               priceConsumersPay: graphData.priceConsumersPay,
