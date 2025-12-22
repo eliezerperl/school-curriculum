@@ -1,3 +1,13 @@
+export interface CustomCurve {
+  id: string;
+  name: string;
+  intercept: number;
+  slope: number;
+  color: string;
+  isDashed: boolean;
+  type: 'supply' | 'demand';
+}
+
 export interface GraphPoint {
   q: number;
   demand: number;

@@ -11,7 +11,7 @@ import {
   ReferenceDot,
   ReferenceLine,
 } from 'recharts';
-import type { GraphPoint } from '../../types';
+import type { CustomCurve, GraphPoint } from '../../types';
 
 interface Props {
   data: GraphPoint[];
@@ -22,6 +22,7 @@ interface Props {
     priceConsumersPay: number;
     priceSuppliersKeep: number;
   };
+  customCurves: CustomCurve[];
 }
 
 export const SupplyDemandGraph: React.FC<Props> = ({
@@ -29,6 +30,7 @@ export const SupplyDemandGraph: React.FC<Props> = ({
   showTax,
   showSubsidy,
   eqData,
+  customCurves,
 }) => {
   return (
     // UPDATED HEIGHT CLASSES BELOW:
@@ -52,15 +54,14 @@ export const SupplyDemandGraph: React.FC<Props> = ({
           />
 
           <Tooltip
-          // 1. This tells Recharts: "If the formatter returns null, do not even render the row"
-  filterNull={true}
-
-  // 2. We explicitly filter the items list before it even tries to render
-  itemSorter={(item) => {
-    // Only allow items that are numbers and NOT arrays (surplus fills are arrays)
-    if (Array.isArray(item.value) || item.value === null) return -1;
-    return 1;
-  }}
+            // 1. This tells Recharts: "If the formatter returns null, do not even render the row"
+            filterNull={true}
+            // 2. We explicitly filter the items list before it even tries to render
+            itemSorter={(item) => {
+              // Only allow items that are numbers and NOT arrays (surplus fills are arrays)
+              if (Array.isArray(item.value) || item.value === null) return -1;
+              return 1;
+            }}
             contentStyle={{
               backgroundColor: 'rgba(255, 255, 255, 0.95)',
               borderRadius: '8px',
@@ -147,6 +148,19 @@ export const SupplyDemandGraph: React.FC<Props> = ({
               name="Supply - Subsidy"
             />
           )}
+
+          {customCurves.map((curve) => (
+            <Line
+              key={curve.id}
+              type="monotone"
+              dataKey={curve.id} // This key must match what we inject in data
+              name={curve.name}
+              stroke={curve.color}
+              strokeWidth={2.5}
+              strokeDasharray={curve.isDashed ? '5 5' : '0'}
+              dot={false}
+            />
+          ))}
 
           <ReferenceDot
             x={eqData.eqQ}

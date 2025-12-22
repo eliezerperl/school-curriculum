@@ -1,24 +1,43 @@
-import React from 'react';
-import type { EconomicsParams, EconomicsSetters } from '../../types';
+import type {
+  CustomCurve,
+  EconomicsParams,
+  EconomicsSetters,
+} from '../../types';
 
 // Import Mini Modules
 import { ViewSettings } from './controls/ViewSettings';
 import { DemandSection } from './controls/DemandSection';
 import { SupplySection } from './controls/SupplySection';
 import { PolicySection } from './controls/PolicySection';
+import { CustomCurveSection } from './controls/CustomCurveSection';
 
 interface Props {
   params: EconomicsParams;
   setters: EconomicsSetters;
+  customCurves: CustomCurve[];
+  addCurve: (c: CustomCurve) => void;
+  removeCurve: (id: string) => void;
 }
 
-export const SupplyDemandControls: React.FC<Props> = ({ params, setters }) => {
+export const SupplyDemandControls: React.FC<Props> = ({
+  params,
+  setters,
+  customCurves,
+  addCurve,
+  removeCurve,
+}) => {
   return (
     <div className="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-[68vh] overflow-y-auto custom-scrollbar">
       {/* 1. View Settings */}
       <ViewSettings
         showSurplus={params.showSurplus}
         setShowSurplus={setters.setShowSurplus}
+      />
+
+      <CustomCurveSection
+        curves={customCurves}
+        addCurve={addCurve}
+        removeCurve={removeCurve}
       />
 
       {/* 2. Demand */}

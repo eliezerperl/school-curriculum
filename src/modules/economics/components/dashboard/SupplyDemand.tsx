@@ -2,9 +2,31 @@ import { useSupplyDemandLogic } from '../../hooks/useSupplyDemandLogic';
 import { SupplyDemandGraph } from './SupplyDemandGraph';
 import { SupplyDemandControls } from './SupplyDemandControls';
 import { MetricCard } from '../ui/EconomicsUI';
+import { useMemo, useState } from 'react';
+import type { CustomCurve, GraphPoint } from '../../types';
 
 export const SupplyDemand = () => {
   const { params, setters, graphData } = useSupplyDemandLogic();
+
+  const [customCurves, setCustomCurves] = useState<CustomCurve[]>([]);
+
+  const addCurve = (c: CustomCurve) => setCustomCurves([...customCurves, c]);
+  const removeCurve = (id: string) => setCustomCurves(customCurves.filter(c => c.id !== id));
+
+  // 2. DATA MERGING: Same logic as before
+  const mergedGraphData = useMemo(() => {
+    return graphData.data.map((point) => {
+      // Cast to allow dynamic keys
+      const newPoint = { ...point } as GraphPoint & { [key: string]: number };
+      
+      customCurves.forEach((curve) => {
+        const price = curve.intercept + (curve.slope * point.q);
+        newPoint[curve.id] = price > 0 ? price : 0;
+      });
+      
+      return newPoint;
+    });
+  }, [graphData.data, customCurves]);
 
   return (
     <div className="space-y-4 flex flex-col">
@@ -54,7 +76,7 @@ export const SupplyDemand = () => {
         {/* Graph Area */}
         <div className="flex-1 min-w-0">
           <SupplyDemandGraph
-            data={graphData.data}
+            data={mergedGraphData}
             showTax={params.showTax}
             showSubsidy={params.showSubsidy}
             eqData={{
@@ -62,12 +84,15 @@ export const SupplyDemand = () => {
               priceConsumersPay: graphData.priceConsumersPay,
               priceSuppliersKeep: graphData.priceSuppliersKeep,
             }}
+            customCurves={customCurves}
           />
         </div>
 
         {/* Controls Area */}
         <div className="w-full xl:w-80 shrink-0">
-          <SupplyDemandControls params={params} setters={setters} />
+          <SupplyDemandControls params={params} setters={setters} customCurves={customCurves}
+            addCurve={addCurve}
+            removeCurve={removeCurve} />
         </div>
       </div>
     </div>
