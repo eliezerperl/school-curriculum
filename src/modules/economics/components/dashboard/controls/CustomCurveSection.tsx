@@ -8,7 +8,6 @@ interface Props {
   curves: CustomCurve[];
   addCurve: (c: CustomCurve) => void;
   removeCurve: (id: string) => void;
-  // We need this function to handle the "Dragging"
   updateCurve: (id: string, field: keyof CustomCurve, value: number) => void;
 }
 

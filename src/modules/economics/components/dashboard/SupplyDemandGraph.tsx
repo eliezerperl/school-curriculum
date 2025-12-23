@@ -11,7 +11,7 @@ import {
   ReferenceDot,
   ReferenceLine,
 } from 'recharts';
-import type { CustomCurve, GraphPoint } from '../../types';
+import type { CustomCurve, GraphPoint, CustomLabelProps } from '../../types';
 
 interface Props {
   data: GraphPoint[];
@@ -32,13 +32,37 @@ export const SupplyDemandGraph: React.FC<Props> = ({
   eqData,
   customCurves,
 }) => {
+  const renderLabel = (props: CustomLabelProps, text: string) => {
+    const { x, y, stroke, index } = props;
+
+    if (
+      index === data.length - 1 &&
+      typeof x === 'number' &&
+      typeof y === 'number'
+    ) {
+      return (
+        <text
+          x={x}
+          y={y}
+          dx={10}
+          dy={4}
+          fill={stroke}
+          fontSize={12}
+          fontWeight="bold"
+          textAnchor="start">
+          {text}
+        </text>
+      );
+    }
+    return null;
+  };
+
   return (
-    // UPDATED HEIGHT CLASSES BELOW:
     <div className="bg-white p-4 rounded-xl shadow-lg border border-slate-100 h-[60vh] min-h-125 w-full flex flex-col">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={data}
-          margin={{ top: 20, right: 30, bottom: 20, left: 10 }}>
+          margin={{ top: 20, right: 60, bottom: 20, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
           <XAxis
             dataKey="q"
@@ -116,6 +140,7 @@ export const SupplyDemandGraph: React.FC<Props> = ({
             strokeWidth={3}
             dot={false}
             name="Demand"
+            label={(props) => renderLabel(props, 'Demand')}
           />
           <Line
             type="monotone"
@@ -126,6 +151,7 @@ export const SupplyDemandGraph: React.FC<Props> = ({
             opacity={showTax ? 0.6 : 1}
             dot={false}
             name="Supply"
+            label={(props) => renderLabel(props, "Supply")}
           />
           {showTax && (
             <Line
@@ -135,6 +161,7 @@ export const SupplyDemandGraph: React.FC<Props> = ({
               strokeWidth={3}
               dot={false}
               name="Supply + Tax"
+              label={(props) => renderLabel(props, "S + Tax")}
             />
           )}
           {/* Subsidy Line (Supply - Subsidy) */}
@@ -146,6 +173,7 @@ export const SupplyDemandGraph: React.FC<Props> = ({
               strokeWidth={3}
               dot={false}
               name="Supply - Subsidy"
+              label={(props) => renderLabel(props, "S - Sub")}
             />
           )}
 
@@ -159,6 +187,7 @@ export const SupplyDemandGraph: React.FC<Props> = ({
               strokeWidth={2.5}
               strokeDasharray={curve.isDashed ? '5 5' : '0'}
               dot={false}
+              label={(props) => renderLabel(props, curve.name)}
             />
           ))}
 

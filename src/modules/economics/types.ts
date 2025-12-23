@@ -1,3 +1,11 @@
+export interface CustomLabelProps {
+  x?: number | string;
+  y?: number | string;
+  stroke?: string;
+  index?: number;
+  value?: string | number | boolean | null | undefined;
+}
+
 export interface CustomCurve {
   id: string;
   name: string;
