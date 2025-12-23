@@ -18,7 +18,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 }) => {
   return (
     // EXACT BACKGROUND FROM ECONOMICS PAGE
-    <div className="min-h-screen bg-gray-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50 relative">
       
       {/* 1. GLOBAL NAV (The "My Studies" Button) */}
       <Navigation />

@@ -36,12 +36,14 @@ export const SupplyDemandControls: React.FC<Props> = ({
         setShowSurplus={setters.setShowSurplus}
       />
 
-      <CustomCurveSection
-        curves={customCurves}
-        addCurve={addCurve}
-        removeCurve={removeCurve}
-        updateCurve={updateCurve}
-      />
+        <CustomCurveSection
+          curves={customCurves}
+          addCurve={addCurve}
+          removeCurve={removeCurve}
+          updateCurve={updateCurve}
+          currentSupplySlope={params.sSlope}
+          currentDemandSlope={params.dSlope * -1}
+        />
 
       {/* 2. Demand */}
       <DemandSection

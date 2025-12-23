@@ -63,7 +63,6 @@ export const ControlSection: React.FC<ControlSectionProps> = ({
   );
 };
 
-// --- Slider Input ---
 interface SliderProps {
   label: string;
   val: number;

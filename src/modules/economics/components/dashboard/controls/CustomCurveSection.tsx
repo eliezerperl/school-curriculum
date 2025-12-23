@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { PenTool, Plus, Trash2, MoveVertical } from 'lucide-react';
-import { ControlSection } from '../../ui/EconomicsUI';
-// Ensure this path matches where your types are defined
+import { Minus, PenTool, Plus, Trash2 } from 'lucide-react';
+// 1. Ensure Slider is imported
+import { ControlSection, Slider } from '../../ui/EconomicsUI';
 import type { CustomCurve } from '../../../types';
 
 interface Props {
@@ -9,6 +9,8 @@ interface Props {
   addCurve: (c: CustomCurve) => void;
   removeCurve: (id: string) => void;
   updateCurve: (id: string, field: keyof CustomCurve, value: number) => void;
+  currentSupplySlope: number;
+  currentDemandSlope: number;
 }
 
 export const CustomCurveSection: React.FC<Props> = ({
@@ -16,8 +18,9 @@ export const CustomCurveSection: React.FC<Props> = ({
   addCurve,
   removeCurve,
   updateCurve,
+  currentSupplySlope,
+  currentDemandSlope,
 }) => {
-  // Local state for the "New Curve" form
   const [newCurve, setNewCurve] = useState<Omit<CustomCurve, 'id'>>({
     name: '',
     intercept: 50,
@@ -30,7 +33,7 @@ export const CustomCurveSection: React.FC<Props> = ({
   const handleSubmit = () => {
     if (!newCurve.name) return;
     addCurve({ ...newCurve, id: Date.now().toString() });
-    setNewCurve({ ...newCurve, name: '' }); // Reset name only
+    setNewCurve({ ...newCurve, name: '' });
   };
 
   return (
@@ -38,7 +41,7 @@ export const CustomCurveSection: React.FC<Props> = ({
       title="Custom Curves"
       color="text-indigo-600"
       icon={<PenTool size={18} />}>
-      {/* --- FORM AREA (Fully Restored) --- */}
+      {/* --- FORM AREA --- */}
       <div className="space-y-3 bg-slate-50 p-3 rounded-lg border border-slate-200 mb-4">
         <input
           type="text"
@@ -49,7 +52,6 @@ export const CustomCurveSection: React.FC<Props> = ({
         />
 
         <div className="flex gap-2">
-          {/* Intercept Input */}
           <div className="flex-1">
             <label className="text-xs text-slate-500 font-semibold">
               Start $
@@ -63,20 +65,44 @@ export const CustomCurveSection: React.FC<Props> = ({
               }
             />
           </div>
-          {/* Slope Input */}
-          <div className="flex-1">
-            <label className="text-xs text-slate-500 font-semibold">
+
+          {/* SLOPE INPUT WITH QUICK BUTTONS */}
+          <div className="flex-[1.5]">
+            <label className="text-xs text-slate-500 font-semibold p-1 flex justify-between">
               Slope
+              <span className="text-[10px] font-normal text-slate-400">
+                Match:
+              </span>
             </label>
-            <input
-              type="number"
-              step="1"
-              className="w-full text-sm p-1 rounded border border-slate-300"
-              value={newCurve.slope}
-              onChange={(e) =>
-                setNewCurve({ ...newCurve, slope: Number(e.target.value) })
-              }
-            />
+            <div className="flex gap-1">
+              <input
+                type="number"
+                step="0.5"
+                className="w-full text-sm p-1 rounded border border-slate-300"
+                value={newCurve.slope}
+                onChange={(e) =>
+                  setNewCurve({ ...newCurve, slope: Number(e.target.value) })
+                }
+              />
+              <button
+                type="button"
+                title="Match Supply Slope"
+                onClick={() =>
+                  setNewCurve({ ...newCurve, slope: currentSupplySlope })
+                }
+                className="px-2 bg-emerald-100 text-emerald-700 rounded border border-emerald-200 hover:bg-emerald-200 text-xs font-bold">
+                S
+              </button>
+              <button
+                type="button"
+                title="Match Demand Slope"
+                onClick={() =>
+                  setNewCurve({ ...newCurve, slope: currentDemandSlope })
+                }
+                className="px-2 bg-blue-100 text-blue-700 rounded border border-blue-200 hover:bg-blue-200 text-xs font-bold">
+                D
+              </button>
+            </div>
           </div>
         </div>
 
@@ -111,13 +137,19 @@ export const CustomCurveSection: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* --- ACTIVE LIST (With Drag Sliders) --- */}
-      <div className="space-y-3">
+      {/* --- ACTIVE LIST --- */}
+      <div className="space-y-3 overflow-y-auto pr-1 custom-scrollbar max-h-44">
+        {curves.length === 0 && (
+          <p className="text-xs text-slate-400 text-center italic py-2">
+            No custom curves added
+          </p>
+        )}
+
         {curves.map((curve) => (
           <div
             key={curve.id}
             className="bg-white p-3 rounded border border-slate-200 shadow-sm">
-            {/* Header: Name, Color Indicator, Delete */}
+            {/* Header Row: Name & Delete */}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <div
@@ -127,10 +159,33 @@ export const CustomCurveSection: React.FC<Props> = ({
                 <span className="text-sm font-semibold text-slate-700">
                   {curve.name}
                 </span>
-                {/* Optional: Show slope value */}
-                <span className="text-xs text-slate-400">
-                  (m={curve.slope})
-                </span>
+                <span className="text-xs text-black">(m={curve.slope})</span>
+                {/* Minus Button */}
+                <button
+                  onClick={() =>
+                    updateCurve(
+                      curve.id,
+                      'slope',
+                      Number((curve.slope - 0.5).toFixed(1))
+                    )
+                  }
+                  className="p-0.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                  title="Decrease Slope">
+                  <Minus size={10} />
+                </button>
+                {/* Plus Button */}
+                <button
+                  onClick={() =>
+                    updateCurve(
+                      curve.id,
+                      'slope',
+                      Number((curve.slope + 0.5).toFixed(1))
+                    )
+                  }
+                  className="p-0.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                  title="Increase Slope">
+                  <Plus size={10} />
+                </button>
               </div>
               <button
                 onClick={() => removeCurve(curve.id)}
@@ -139,24 +194,15 @@ export const CustomCurveSection: React.FC<Props> = ({
               </button>
             </div>
 
-            {/* The "Drag" Slider */}
-            <div className="flex items-center gap-3">
-              <MoveVertical size={14} className="text-slate-400" />
-              <input
-                type="range"
-                min="0"
-                max="100" // Adjust this max based on your graph scale
-                step="1"
-                value={curve.intercept}
-                onChange={(e) =>
-                  updateCurve(curve.id, 'intercept', Number(e.target.value))
-                }
-                className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-ew-resize accent-indigo-600"
-              />
-              <span className="text-xs text-slate-500 w-8 text-right font-mono">
-                {Math.round(curve.intercept)}
-              </span>
-            </div>
+            <Slider
+              label="Position ($)"
+              val={curve.intercept}
+              set={(val) => updateCurve(curve.id, 'intercept', val)}
+              min={0}
+              max={200}
+              step={1}
+              color="accent-indigo-600"
+            />
           </div>
         ))}
       </div>
