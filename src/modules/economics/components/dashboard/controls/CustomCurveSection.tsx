@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
-import { PenTool, Plus, Trash2 } from 'lucide-react';
-import { ControlSection } from '../../ui/EconomicsUI'; // Using your existing UI wrapper
-import type { CustomCurve } from '../../../types';
+import { PenTool, Plus, Trash2, MoveVertical } from 'lucide-react';
+import { ControlSection } from '../../ui/EconomicsUI';
+// Ensure this path matches where your types are defined
+import type { CustomCurve } from '../../../types'; 
 
 interface Props {
   curves: CustomCurve[];
   addCurve: (c: CustomCurve) => void;
   removeCurve: (id: string) => void;
+  // We need this function to handle the "Dragging"
+  updateCurve: (id: string, field: keyof CustomCurve, value: number) => void;
 }
 
-export const CustomCurveSection: React.FC<Props> = ({ curves, addCurve, removeCurve }) => {
+export const CustomCurveSection: React.FC<Props> = ({ 
+  curves, 
+  addCurve, 
+  removeCurve, 
+  updateCurve 
+}) => {
   // Local state for the "New Curve" form
   const [newCurve, setNewCurve] = useState<Omit<CustomCurve, 'id'>>({
     name: '',
@@ -29,8 +37,8 @@ export const CustomCurveSection: React.FC<Props> = ({ curves, addCurve, removeCu
   return (
     <ControlSection title="Custom Curves" color="text-indigo-600" icon={<PenTool size={18} />}>
       
-      {/* --- FORM AREA --- */}
-      <div className="space-y-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
+      {/* --- FORM AREA (Fully Restored) --- */}
+      <div className="space-y-3 bg-slate-50 p-3 rounded-lg border border-slate-200 mb-4">
         <input
           type="text"
           placeholder="Curve Name (e.g. New Tax)"
@@ -90,20 +98,41 @@ export const CustomCurveSection: React.FC<Props> = ({ curves, addCurve, removeCu
         </div>
       </div>
 
-      {/* --- ACTIVE LIST --- */}
-      <div className="mt-4 space-y-2">
+      {/* --- ACTIVE LIST (With Drag Sliders) --- */}
+      <div className="space-y-3">
         {curves.map(curve => (
-          <div key={curve.id} className="flex items-center justify-between text-sm bg-white p-2 rounded border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-2">
-              <div 
-                className="w-3 h-3 rounded-full" 
-                style={{ backgroundColor: curve.color }} 
-              />
-              <span className="text-slate-700 font-medium">{curve.name}</span>
+          <div key={curve.id} className="bg-white p-3 rounded border border-slate-200 shadow-sm">
+            
+            {/* Header: Name, Color Indicator, Delete */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: curve.color }} />
+                <span className="text-sm font-semibold text-slate-700">{curve.name}</span>
+                {/* Optional: Show slope value */}
+                <span className="text-xs text-slate-400">(m={curve.slope})</span>
+              </div>
+              <button onClick={() => removeCurve(curve.id)} className="text-slate-400 hover:text-red-500">
+                <Trash2 size={14} />
+              </button>
             </div>
-            <button onClick={() => removeCurve(curve.id)} className="text-slate-400 hover:text-red-500">
-              <Trash2 size={14} />
-            </button>
+
+            {/* The "Drag" Slider */}
+            <div className="flex items-center gap-3">
+              <MoveVertical size={14} className="text-slate-400" />
+              <input
+                type="range"
+                min="0"
+                max="100" // Adjust this max based on your graph scale
+                step="1"
+                value={curve.intercept}
+                onChange={(e) => updateCurve(curve.id, 'intercept', Number(e.target.value))}
+                className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-ew-resize accent-indigo-600"
+              />
+              <span className="text-xs text-slate-500 w-8 text-right font-mono">
+                {Math.round(curve.intercept)}
+              </span>
+            </div>
+
           </div>
         ))}
       </div>

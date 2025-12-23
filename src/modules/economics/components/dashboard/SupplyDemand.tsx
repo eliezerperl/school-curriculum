@@ -11,19 +11,25 @@ export const SupplyDemand = () => {
   const [customCurves, setCustomCurves] = useState<CustomCurve[]>([]);
 
   const addCurve = (c: CustomCurve) => setCustomCurves([...customCurves, c]);
-  const removeCurve = (id: string) => setCustomCurves(customCurves.filter(c => c.id !== id));
+  const removeCurve = (id: string) =>
+    setCustomCurves(customCurves.filter((c) => c.id !== id));
 
-  // 2. DATA MERGING: Same logic as before
+  const updateCurve = (id: string, field: keyof CustomCurve, value: number) => {
+    setCustomCurves((prevCurves) =>
+      prevCurves.map((c) => (c.id === id ? { ...c, [field]: value } : c))
+    );
+  };
+
   const mergedGraphData = useMemo(() => {
     return graphData.data.map((point) => {
       // Cast to allow dynamic keys
       const newPoint = { ...point } as GraphPoint & { [key: string]: number };
-      
+
       customCurves.forEach((curve) => {
-        const price = curve.intercept + (curve.slope * point.q);
+        const price = curve.intercept + curve.slope * point.q;
         newPoint[curve.id] = price > 0 ? price : 0;
       });
-      
+
       return newPoint;
     });
   }, [graphData.data, customCurves]);
@@ -90,9 +96,14 @@ export const SupplyDemand = () => {
 
         {/* Controls Area */}
         <div className="w-full xl:w-80 shrink-0">
-          <SupplyDemandControls params={params} setters={setters} customCurves={customCurves}
+          <SupplyDemandControls
+            params={params}
+            setters={setters}
+            customCurves={customCurves}
             addCurve={addCurve}
-            removeCurve={removeCurve} />
+            removeCurve={removeCurve}
+            updateCurve={updateCurve}
+          />
         </div>
       </div>
     </div>

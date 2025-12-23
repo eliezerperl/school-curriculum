@@ -17,6 +17,7 @@ interface Props {
   customCurves: CustomCurve[];
   addCurve: (c: CustomCurve) => void;
   removeCurve: (id: string) => void;
+  updateCurve: (id: string, field: keyof CustomCurve, value: number) => void;
 }
 
 export const SupplyDemandControls: React.FC<Props> = ({
@@ -25,6 +26,7 @@ export const SupplyDemandControls: React.FC<Props> = ({
   customCurves,
   addCurve,
   removeCurve,
+  updateCurve,
 }) => {
   return (
     <div className="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-[68vh] overflow-y-auto custom-scrollbar">
@@ -38,6 +40,7 @@ export const SupplyDemandControls: React.FC<Props> = ({
         curves={customCurves}
         addCurve={addCurve}
         removeCurve={removeCurve}
+        updateCurve={updateCurve}
       />
 
       {/* 2. Demand */}
