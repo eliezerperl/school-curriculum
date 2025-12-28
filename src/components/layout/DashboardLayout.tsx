@@ -17,34 +17,37 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   tools
 }) => {
   return (
-    // EXACT BACKGROUND FROM ECONOMICS PAGE
-    <div className="min-h-screen bg-gray-50 relative">
+    // changed h-screen to min-h-screen so mobile can scroll
+    <div className="min-h-screen bg-gray-50 relative flex flex-col">
       
-      {/* 1. GLOBAL NAV (The "My Studies" Button) */}
+      {/* 1. GLOBAL NAV */}
       <Navigation />
 
       {/* 2. FLOATING ICONS (Vertical Dock on Left) */}
-      {/* Exact positioning from your code: left-6 top-1/2 -translate-y-1/2 */}
+      {/* Added 'hidden md:flex': Hides this on mobile, shows it on Tablet/Desktop */}
       {sideNav && (
-        <div className="fixed left-6 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-4">
+        <div className="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 z-30 flex-col gap-4">
           {sideNav}
         </div>
       )}
 
       {/* 3. MAIN CONTENT AREA */}
-      {/* Exact padding from your code: pl-24 to avoid the dock */}
-      <div className="p-6 pl-24 max-w-7xl mx-auto h-screen flex flex-col">
+      {/* - Changed 'pl-24' to 'md:pl-24': Only add the left padding on desktop.
+          - Changed 'p-6' to 'p-4 md:p-6': Smaller padding on mobile.
+          - Changed 'h-screen' to 'min-h-screen': Allows scrolling on mobile.
+      */}
+      <div className="p-4 md:p-6 md:pl-24 max-w-7xl mx-auto min-h-screen w-full flex flex-col">
         
         {/* HEADER */}
         <header className="mb-6 text-center shrink-0">
-          <h1 className="text-3xl font-bold text-slate-900">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
             {title}
           </h1>
-          {subtitle && <p className="text-slate-600">{subtitle}</p>}
+          {subtitle && <p className="text-sm md:text-base text-slate-600">{subtitle}</p>}
         </header>
 
         {/* CONTENT */}
-        <main className="flex-1 min-h-0 relative">
+        <main className="flex-1 w-full relative">
           {children}
         </main>
       </div>
