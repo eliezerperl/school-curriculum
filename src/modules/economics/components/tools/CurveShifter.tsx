@@ -1,10 +1,23 @@
+import { RotateCcw } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
-import { ResponsiveContainer, ComposedChart, Line, XAxis, YAxis, ReferenceDot } from 'recharts';
+import {
+  ResponsiveContainer,
+  ComposedChart,
+  Line,
+  XAxis,
+  YAxis,
+  ReferenceDot,
+} from 'recharts';
 
 export const CurveShifter: React.FC = () => {
   // State for the "Shifts" (Negative = Left/Down, Positive = Right/Up)
   const [dShift, setDShift] = useState(0);
   const [sShift, setSShift] = useState(0);
+
+  const handleReset = () => {
+    setDShift(0);
+    setSShift(0);
+  };
 
   // Generate Data for the Mini Graph
   const data = useMemo(() => {
@@ -17,7 +30,7 @@ export const CurveShifter: React.FC = () => {
         dOriginal: 100 - q,
         sOriginal: q,
         // Shifted Curves (Dotted)
-        dShifted: (100 - q) + dShift,
+        dShifted: 100 - q + dShift,
         sShifted: q + sShift,
       });
     }
@@ -31,8 +44,14 @@ export const CurveShifter: React.FC = () => {
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-      <h3 className="text-sm font-bold text-gray-700 mb-4 border-b pb-2">
+      <h3 className="text-sm font-bold text-gray-700 mb-4 border-b pb-2 flex justify-between">
         Market Intuition Sandbox
+        <button
+          onClick={handleReset}
+          title="Reset Curves"
+          className="text-gray-400 hover:text-indigo-600 hover:rotate-180 transition-all duration-300">
+          <RotateCcw size={14} />
+        </button>
       </h3>
 
       {/* --- SLIDERS --- */}
@@ -43,7 +62,10 @@ export const CurveShifter: React.FC = () => {
             <span>{dShift > 0 ? `+${dShift}` : dShift}</span>
           </label>
           <input
-            type="range" min="-40" max="40" value={dShift}
+            type="range"
+            min="-40"
+            max="40"
+            value={dShift}
             onChange={(e) => setDShift(Number(e.target.value))}
             className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
           />
@@ -55,7 +77,10 @@ export const CurveShifter: React.FC = () => {
             <span>{sShift > 0 ? `+${sShift}` : sShift}</span>
           </label>
           <input
-            type="range" min="-40" max="40" value={sShift}
+            type="range"
+            min="-40"
+            max="40"
+            value={sShift}
             onChange={(e) => setSShift(Number(e.target.value))}
             className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
           />
@@ -65,20 +90,56 @@ export const CurveShifter: React.FC = () => {
       {/* --- MINI GRAPH --- */}
       <div className="h-48 w-full bg-slate-50 rounded border border-slate-100">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={data} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
+          <ComposedChart
+            data={data}
+            margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
             <XAxis dataKey="q" type="number" hide />
             <YAxis domain={[0, 140]} hide />
-            
+
             {/* Original Curves (Faint) */}
-            <Line type="monotone" dataKey="dOriginal" stroke="#93c5fd" strokeWidth={2} dot={false} strokeOpacity={0.5} />
-            <Line type="monotone" dataKey="sOriginal" stroke="#6ee7b7" strokeWidth={2} dot={false} strokeOpacity={0.5} />
+            <Line
+              type="monotone"
+              dataKey="dOriginal"
+              stroke="#93c5fd"
+              strokeWidth={2}
+              dot={false}
+              strokeOpacity={0.5}
+            />
+            <Line
+              type="monotone"
+              dataKey="sOriginal"
+              stroke="#6ee7b7"
+              strokeWidth={2}
+              dot={false}
+              strokeOpacity={0.5}
+            />
 
             {/* Shifted Curves (Active/Dotted) */}
-            <Line type="monotone" dataKey="dShifted" stroke="#2563eb" strokeWidth={2} dot={false} strokeDasharray="4 4" />
-            <Line type="monotone" dataKey="sShifted" stroke="#059669" strokeWidth={2} dot={false} strokeDasharray="4 4" />
+            <Line
+              type="monotone"
+              dataKey="dShifted"
+              stroke="#2563eb"
+              strokeWidth={2}
+              dot={false}
+              strokeDasharray="4 4"
+            />
+            <Line
+              type="monotone"
+              dataKey="sShifted"
+              stroke="#059669"
+              strokeWidth={2}
+              dot={false}
+              strokeDasharray="4 4"
+            />
 
             {/* The New Equilibrium Dot */}
-            <ReferenceDot x={newQ} y={newP} r={4} fill="#f59e0b" stroke="white" />
+            <ReferenceDot
+              x={newQ}
+              y={newP}
+              r={4}
+              fill="#f59e0b"
+              stroke="white"
+            />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
