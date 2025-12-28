@@ -6,7 +6,7 @@ export const AppRoutes = () => {
   return (
     <Routes>
       
-      <Route path="/" element={<Navigate to="/calculus" replace />} />
+      <Route path="/" element={<Navigate to="/economics" replace />} />
       <Route path="/economics" element={<EconomicsPage />} />
       <Route path="/calculus" element={<CalculusPage />} />
       
