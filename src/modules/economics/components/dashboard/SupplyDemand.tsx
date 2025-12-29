@@ -14,7 +14,11 @@ export const SupplyDemand = () => {
   const removeCurve = (id: string) =>
     setCustomCurves(customCurves.filter((c) => c.id !== id));
 
-  const updateCurve = (id: string, field: keyof CustomCurve, value: number) => {
+  const updateCurve = (
+    id: string,
+    field: keyof CustomCurve,
+    value: number | boolean
+  ) => {
     setCustomCurves((prevCurves) =>
       prevCurves.map((c) => (c.id === id ? { ...c, [field]: value } : c))
     );
@@ -90,7 +94,7 @@ export const SupplyDemand = () => {
               priceConsumersPay: graphData.priceConsumersPay,
               priceSuppliersKeep: graphData.priceSuppliersKeep,
             }}
-            showDemand={params.showDemand} 
+            showDemand={params.showDemand}
             showSupply={params.showSupply}
             customCurves={customCurves}
           />

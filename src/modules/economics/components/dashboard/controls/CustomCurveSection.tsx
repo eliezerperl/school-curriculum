@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Minus, PenTool, Plus, Trash2 } from 'lucide-react';
+import { Minus, MoreHorizontal, PenTool, Plus, Trash2 } from 'lucide-react';
 // 1. Ensure Slider is imported
 import { ControlSection, Slider } from '../../ui/EconomicsUI';
 import type { CustomCurve } from '../../../types';
@@ -8,7 +8,11 @@ interface Props {
   curves: CustomCurve[];
   addCurve: (c: CustomCurve) => void;
   removeCurve: (id: string) => void;
-  updateCurve: (id: string, field: keyof CustomCurve, value: number) => void;
+  updateCurve: (
+    id: string,
+    field: keyof CustomCurve,
+    value: number | boolean
+  ) => void;
   currentSupplySlope: number;
   currentDemandSlope: number;
 }
@@ -187,6 +191,17 @@ export const CustomCurveSection: React.FC<Props> = ({
                   <Plus size={10} />
                 </button>
               </div>
+              <button
+                  onClick={() => updateCurve(curve.id, 'isDashed', !curve.isDashed)}
+                  title={curve.isDashed ? "Make Solid" : "Make Dashed"}
+                  className={`p-1.5 rounded transition-colors ${
+                    curve.isDashed 
+                      ? 'bg-indigo-100 text-indigo-600 border border-indigo-200' 
+                      : 'bg-slate-100 text-slate-400 border border-slate-200 hover:bg-slate-200'
+                  }`}
+                >
+                  <MoreHorizontal size={14} />
+                </button>
               <button
                 onClick={() => removeCurve(curve.id)}
                 className="text-slate-400 hover:text-red-500">
