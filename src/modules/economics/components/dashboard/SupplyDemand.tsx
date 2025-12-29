@@ -90,6 +90,8 @@ export const SupplyDemand = () => {
               priceConsumersPay: graphData.priceConsumersPay,
               priceSuppliersKeep: graphData.priceSuppliersKeep,
             }}
+            showDemand={params.showDemand} 
+            showSupply={params.showSupply}
             customCurves={customCurves}
           />
         </div>

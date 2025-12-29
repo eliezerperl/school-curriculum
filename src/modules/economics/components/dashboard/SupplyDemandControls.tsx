@@ -1,10 +1,5 @@
-import type {
-  CustomCurve,
-  EconomicsParams,
-  EconomicsSetters,
-} from '../../types';
-
-// Import Mini Modules
+import React from 'react';
+import type { CustomCurve, EconomicsParams, EconomicsSetters } from '../../types';
 import { ViewSettings } from './controls/ViewSettings';
 import { DemandSection } from './controls/DemandSection';
 import { SupplySection } from './controls/SupplySection';
@@ -29,39 +24,41 @@ export const SupplyDemandControls: React.FC<Props> = ({
   updateCurve,
 }) => {
   return (
-    <div className="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-[68vh] overflow-y-auto custom-scrollbar">
-      {/* 1. View Settings */}
+    // Responsive: h-auto on mobile, fixed height on desktop
+    <div className="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-auto xl:h-[68vh] xl:overflow-y-auto custom-scrollbar">
+      
       <ViewSettings
         showSurplus={params.showSurplus}
         setShowSurplus={setters.setShowSurplus}
       />
 
-        <CustomCurveSection
-          curves={customCurves}
-          addCurve={addCurve}
-          removeCurve={removeCurve}
-          updateCurve={updateCurve}
-          currentSupplySlope={params.sSlope}
-          currentDemandSlope={params.dSlope * -1}
-        />
+      <CustomCurveSection
+        curves={customCurves}
+        addCurve={addCurve}
+        removeCurve={removeCurve}
+        updateCurve={updateCurve}
+        currentSupplySlope={params.sSlope}
+        currentDemandSlope={params.dSlope * -1}
+      />
 
-      {/* 2. Demand */}
       <DemandSection
         intercept={params.dIntercept}
         slope={params.dSlope}
+        show={params.showDemand}       // <--- Pass State
+        setShow={setters.setShowDemand} // <--- Pass Setter
         setIntercept={setters.setDIntercept}
         setSlope={setters.setDSlope}
       />
 
-      {/* 3. Supply */}
       <SupplySection
         intercept={params.sIntercept}
         slope={params.sSlope}
+        show={params.showSupply}       // <--- Pass State
+        setShow={setters.setShowSupply} // <--- Pass Setter
         setIntercept={setters.setSIntercept}
         setSlope={setters.setSSlope}
       />
 
-      {/* 4. Policy */}
       <PolicySection
         showTax={params.showTax}
         setShowTax={setters.setShowTax}
