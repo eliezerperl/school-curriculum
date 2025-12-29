@@ -10,11 +10,11 @@ export const useSupplyDemandLogic = () => {
   const [calcInput, setCalcInput] = useState<number>(0);
 
   // Math State
-  const [dIntercept, setDIntercept] = useState(100);
+  const [dIntercept, setDIntercept] = useState(150);
   const [dSlope, setDSlope] = useState(1);
   const [showDemand, setShowDemand] = useState(true); // <--- ADDED
 
-  const [sIntercept, setSIntercept] = useState(10);
+  const [sIntercept, setSIntercept] = useState(50);
   const [sSlope, setSSlope] = useState(1);
   const [showSupply, setShowSupply] = useState(true); // <--- ADDED
 
