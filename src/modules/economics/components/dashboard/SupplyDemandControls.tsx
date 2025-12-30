@@ -60,8 +60,8 @@ export const SupplyDemandControls: React.FC<Props> = ({
       <DemandSection
         intercept={params.dIntercept}
         slope={params.dSlope}
-        show={params.showDemand} // <--- Pass State
-        setShow={setters.setShowDemand} // <--- Pass Setter
+        show={params.showDemand}
+        setShow={setters.setShowDemand} 
         setIntercept={setters.setDIntercept}
         setSlope={setters.setDSlope}
       />
@@ -69,8 +69,8 @@ export const SupplyDemandControls: React.FC<Props> = ({
       <SupplySection
         intercept={params.sIntercept}
         slope={params.sSlope}
-        show={params.showSupply} // <--- Pass State
-        setShow={setters.setShowSupply} // <--- Pass Setter
+        show={params.showSupply}
+        setShow={setters.setShowSupply} 
         setIntercept={setters.setSIntercept}
         setSlope={setters.setSSlope}
       />
@@ -84,6 +84,7 @@ export const SupplyDemandControls: React.FC<Props> = ({
         setShowSubsidy={setters.setShowSubsidy}
         subsidy={params.subsidy}
         setSubsidy={setters.setSubsidy}
+        maxLimit={params.dIntercept - params.sIntercept}
       />
     </div>
   );
