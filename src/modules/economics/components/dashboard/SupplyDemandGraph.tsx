@@ -6,7 +6,6 @@ interface Props {
   data: GraphPoint[];
   showTax: boolean;
   showSubsidy: boolean;
-  // New visibility props
   showDemand?: boolean;
   showSupply?: boolean;
   eqData: {
@@ -15,17 +14,24 @@ interface Props {
     priceSuppliersKeep: number;
   };
   customCurves: CustomCurve[];
+  isTheoretical?: boolean;
 }
 
 export const SupplyDemandGraph: React.FC<Props> = ({
   data,
   showTax,
   showSubsidy,
-  showDemand = true, // Default to true if undefined
+  showDemand = true,
   showSupply = true,
   eqData,
   customCurves,
+  isTheoretical = true,
 }) => {
+  
+  // Dynamic Equilibrium Labels
+  const eqPLabel = isTheoretical ? "P*" : `P*=$${eqData.priceConsumersPay.toFixed(2)}`;
+  const eqQLabel = isTheoretical ? "Q*" : `Q*=${eqData.eqQ.toFixed(1)}`;
+
   const renderLabel = (props: CustomLabelProps, text: string) => {
     const { x, y, stroke, index } = props;
     if (index === data.length - 1 && typeof x === 'number' && typeof y === 'number') {
@@ -43,49 +49,63 @@ export const SupplyDemandGraph: React.FC<Props> = ({
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 20, right: 60, bottom: 20, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-          <XAxis dataKey="q" label={{ value: 'Quantity', position: 'insideBottomRight', offset: -10 }} type="number" />
-          <YAxis label={{ value: 'Price', angle: -90, position: 'insideLeft' }} />
+          
+          <XAxis 
+            dataKey="q" 
+            type="number" 
+            tick={!isTheoretical} // Hide numbers in Theoretical Mode
+            label={{ value: 'Quantity (Q)', position: 'insideBottomRight', offset: -10 }} 
+          />
+          <YAxis 
+            tick={!isTheoretical} // Hide numbers in Theoretical Mode
+            label={{ value: 'Price (P)', angle: -90, position: 'insideLeft' }} 
+          />
           
           <Tooltip
-            // 1. This tells Recharts: "If the formatter returns null, do not even render the row"
             filterNull={true}
-            // 2. We explicitly filter the items list before it even tries to render
+            content={isTheoretical ? () => null : undefined}
+            
             itemSorter={(item) => {
-              // Only allow items that are numbers and NOT arrays (surplus fills are arrays)
-              if (Array.isArray(item.value) || item.value === null) return -1;
+              if (item.value && Array.isArray(item.value)) return -1;
               return 1;
             }}
+            
             contentStyle={{
               backgroundColor: 'rgba(255, 255, 255, 0.95)',
               borderRadius: '8px',
               border: '1px solid #e2e8f0',
-              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+              padding: '8px 12px',
             }}
-            formatter={(value: number | number[] | undefined) => {
-              if (value === undefined || value === null || Array.isArray(value))
-                return null;
-              return Number(value).toFixed(2);
+
+            formatter={(
+              value: number | string | Array<number | string> | readonly (number | string)[] | undefined | null,
+              name: string | undefined
+            ) => {
+              if (value === undefined || value === null || Array.isArray(value)) {
+                return [null, null];
+              }
+
+              // Formatting
+              return [`$${Number(value).toFixed(2)}`, name || ''];
             }}
-            labelFormatter={(label) => `Q: ${label}`}
+            labelFormatter={(label) => `Quantity: ${label}`}
           />
 
+          {/* Areas */}
           <Area type="monotone" dataKey="csFill" stroke="none" fill="#3b82f6" fillOpacity={0.2} name="Consumer Surplus" />
           <Area type="monotone" dataKey="psFill" stroke="none" fill="#10b981" fillOpacity={0.2} name="Producer Surplus" />
           <Area type="monotone" dataKey="taxFill" stroke="none" fill="#f97316" fillOpacity={0.3} name="Tax Revenue" />
           <Area type="monotone" dataKey="subsidyFill" stroke="none" fill="#9333ea" fillOpacity={0.3} name="Subsidy Cost" />
 
-          {/* Conditional Demand Line */}
+          {/* Lines */}
           {showDemand && (
-            <Line 
-              type="monotone" dataKey="demand" stroke="#2563eb" strokeWidth={3} dot={false} name="Demand" 
+            <Line type="monotone" dataKey="demand" stroke="#2563eb" strokeWidth={3} dot={false} name="Demand" 
               label={(props) => renderLabel(props, 'Demand')} 
             />
           )}
 
-          {/* Conditional Supply Line */}
           {showSupply && (
-            <Line 
-              type="monotone" dataKey="supply" stroke="#10b981" strokeWidth={showTax ? 2 : 3} 
+            <Line type="monotone" dataKey="supply" stroke="#10b981" strokeWidth={showTax ? 2 : 3} 
               strokeDasharray={showTax ? '5 5' : '0'} opacity={showTax ? 0.6 : 1} dot={false} name="Supply"
               label={(props) => renderLabel(props, "Supply")} 
             />
@@ -111,13 +131,35 @@ export const SupplyDemandGraph: React.FC<Props> = ({
             />
           ))}
 
-          {/* Equilibrium Dots */}
+          {/* Equilibrium Dots & Lines */}
           <ReferenceDot x={eqData.eqQ} y={eqData.priceConsumersPay} r={5} fill="#2563eb" stroke="none" />
           {showTax && <ReferenceDot x={eqData.eqQ} y={eqData.priceSuppliersKeep} r={5} fill="#10b981" stroke="none" />}
           {showSubsidy && <ReferenceDot x={eqData.eqQ} y={eqData.priceSuppliersKeep} r={5} fill="#10b981" stroke="white" />}
 
-          <ReferenceLine x={eqData.eqQ} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: `Q*=${eqData.eqQ.toFixed(1)}`, position: 'insideBottomLeft', fill: '#64748b', fontSize: 12 }} />
-          <ReferenceLine y={eqData.priceConsumersPay} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: `P*=${eqData.priceConsumersPay.toFixed(2)}`, position: 'insideTopLeft', fill: 'black', fontSize: 12 }} />
+          <ReferenceLine 
+            x={eqData.eqQ} 
+            stroke="#94a3b8" 
+            strokeDasharray="3 3" 
+            label={{ 
+              value: eqQLabel, 
+              position: 'insideBottomLeft', 
+              fill: '#64748b', 
+              fontSize: isTheoretical ? 16 : 12,
+              fontWeight: isTheoretical ? 'bold' : 'normal'
+            }} 
+          />
+          <ReferenceLine 
+            y={eqData.priceConsumersPay} 
+            stroke="#94a3b8" 
+            strokeDasharray="3 3" 
+            label={{ 
+              value: eqPLabel, 
+              position: 'insideTopLeft', 
+              fill: 'black', 
+              fontSize: isTheoretical ? 16 : 12,
+              fontWeight: isTheoretical ? 'bold' : 'normal'
+            }} 
+          />
         </ComposedChart>
       </ResponsiveContainer>
     </div>

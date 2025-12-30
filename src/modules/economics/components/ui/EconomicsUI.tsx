@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 // --- Metric Card ---
 interface MetricCardProps {
   label: string;
-  value: number;
+  value: number | string;
   color: string;
   bg: string;
 }
@@ -18,7 +18,13 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
       {label}
     </div>
-    <div className={`text-2xl font-bold ${color}`}>${value.toFixed(0)}</div>
+    <div className={`text-2xl font-bold ${color}`}>
+      {
+        typeof value === 'number'
+          ? `$${value.toFixed(2)}` // If number: Format with $ and decimals
+          : value // If string: Show text (e.g. "CS") directly
+      }
+    </div>
   </div>
 );
 

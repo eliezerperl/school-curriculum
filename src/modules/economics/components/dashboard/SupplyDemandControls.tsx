@@ -21,6 +21,8 @@ interface Props {
     field: keyof CustomCurve,
     value: number | boolean
   ) => void;
+
+  naturalEqP: number;
 }
 
 export const SupplyDemandControls: React.FC<Props> = ({
@@ -30,6 +32,7 @@ export const SupplyDemandControls: React.FC<Props> = ({
   addCurve,
   removeCurve,
   updateCurve,
+  naturalEqP,
 }) => {
   return (
     // Responsive: h-auto on mobile, fixed height on desktop
@@ -37,6 +40,12 @@ export const SupplyDemandControls: React.FC<Props> = ({
       <ViewSettings
         showSurplus={params.showSurplus}
         setShowSurplus={setters.setShowSurplus}
+        manualPrice={params.manualPrice}
+        setManualPrice={setters.setManualPrice}
+        naturalEqP={naturalEqP}
+
+        isTheoretical={params.isTheoretical}
+        setIsTheoretical={setters.setIsTheoretical}
       />
 
       <CustomCurveSection

@@ -33,17 +33,21 @@ export interface GraphPoint {
 export interface EconomicsParams {
   dIntercept: number;
   dSlope: number;
-  showDemand: boolean; // <--- Added
+  showDemand: boolean;
 
   sIntercept: number;
   sSlope: number;
-  showSupply: boolean; // <--- Added
+  showSupply: boolean;
 
   tax: number;
   showTax: boolean;
   subsidy: number;
   showSubsidy: boolean;
   showSurplus: boolean;
+
+  manualPrice: number | null;
+
+  isTheoretical: boolean;
   
   // App state
   maxQ: number;
@@ -55,17 +59,21 @@ export interface EconomicsParams {
 export interface EconomicsSetters {
   setDIntercept: (val: number) => void;
   setDSlope: (val: number) => void;
-  setShowDemand: (val: boolean) => void; // <--- Added
+  setShowDemand: (val: boolean) => void; 
 
   setSIntercept: (val: number) => void;
   setSSlope: (val: number) => void;
-  setShowSupply: (val: boolean) => void; // <--- Added
+  setShowSupply: (val: boolean) => void;
 
   setTax: (val: number) => void;
   setShowTax: (val: boolean) => void;
   setSubsidy: (val: number) => void;
   setShowSubsidy: (val: boolean) => void;
   setShowSurplus: (val: boolean) => void;
+
+  setManualPrice: (val: number | null) => void;
+
+  setIsTheoretical: (val: boolean) => void;
   
   // App state setters
   setMaxQ: (val: number) => void;

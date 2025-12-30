@@ -24,6 +24,19 @@ export const SupplyDemand = () => {
     );
   };
 
+  // Helper to switch between Numbers (50.00) and Variables (CS, PS)
+  const formatMetric = (val: number, isTheoretical: boolean, label: string) => {
+    if (!isTheoretical) return val;
+    switch (label) {
+      case 'Consumer Surplus': return "CS";
+      case 'Producer Surplus': return "PS";
+      case 'Tax Revenue': return "Tax Rev";
+      case 'Subsidy Cost': return "Sub Cost";
+      case 'Total Welfare': return "Welfare";
+      default: return "---";
+    }
+  };
+
   const mergedGraphData = useMemo(() => {
     return graphData.data.map((point) => {
       // Cast to allow dynamic keys
@@ -44,20 +57,20 @@ export const SupplyDemand = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard
           label="Consumer Surplus"
-          value={graphData.metrics.csValue}
+          value={formatMetric(graphData.metrics.csValue, params.isTheoretical, 'Consumer Surplus')}
           color="text-blue-600"
           bg="bg-blue-50"
         />
         <MetricCard
           label="Producer Surplus"
-          value={graphData.metrics.psValue}
+          value={formatMetric(graphData.metrics.psValue, params.isTheoretical, 'Producer Surplus')}
           color="text-emerald-600"
           bg="bg-emerald-50"
         />
         {params.showTax && (
           <MetricCard
             label="Tax Revenue"
-            value={graphData.metrics.taxRevenue}
+            value={formatMetric(graphData.metrics.taxRevenue, params.isTheoretical, 'Tax Revenue')}
             color="text-orange-600"
             bg="bg-orange-50"
           />
@@ -65,23 +78,20 @@ export const SupplyDemand = () => {
         {params.showSubsidy && (
           <MetricCard
             label="Subsidy Cost"
-            value={graphData.metrics.subsidyCost}
+            value={formatMetric(graphData.metrics.subsidyCost, params.isTheoretical, 'Subsidy Cost')}
             color="text-purple-600"
             bg="bg-purple-50"
           />
         )}
         <MetricCard
           label="Total Welfare"
-          value={graphData.metrics.totalWelfare}
+          value={formatMetric(graphData.metrics.totalWelfare, params.isTheoretical, 'Total Welfare')}
           color="text-slate-800"
           bg="bg-slate-100"
         />
       </div>
 
-      {/* 2. Main Layout 
-          - On XL screens (Desktops): Side by Side
-          - On L/M screens (Laptops): Stacked (Graph on top, full width)
-      */}
+      {/* 2. Main Layout */}
       <div className="flex flex-col xl:flex-row gap-6 flex-1">
         {/* Graph Area */}
         <div className="flex-1 min-w-0">
@@ -97,6 +107,7 @@ export const SupplyDemand = () => {
             showDemand={params.showDemand}
             showSupply={params.showSupply}
             customCurves={customCurves}
+            isTheoretical={params.isTheoretical} // Pass Theoretical Mode
           />
         </div>
 
@@ -109,6 +120,7 @@ export const SupplyDemand = () => {
             addCurve={addCurve}
             removeCurve={removeCurve}
             updateCurve={updateCurve}
+            naturalEqP={graphData.naturalEqP} // Pass Natural Price for Reset
           />
         </div>
       </div>
