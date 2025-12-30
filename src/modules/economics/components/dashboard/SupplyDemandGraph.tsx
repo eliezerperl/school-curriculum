@@ -12,7 +12,7 @@ import {
   ReferenceLine 
 } from 'recharts';
 import { Download } from 'lucide-react'; // Import the icon
-import type { CustomCurve, GraphPoint } from '../../types';
+import type { CustomCurve, GraphPoint, CustomLabelProps } from '../../types';
 import { CustomTooltip } from '../ui/EconomicsUI';
 
 interface Props {
@@ -103,7 +103,7 @@ export const SupplyDemandGraph: React.FC<Props> = ({
   }, []);
 
   const renderLabel = (
-    props: { x?: string | number; y?: string | number; stroke?: string; index?: number }, 
+    props: CustomLabelProps, 
     name: string, 
     type: 'demand' | 'supply' | 'other'
   ) => {
