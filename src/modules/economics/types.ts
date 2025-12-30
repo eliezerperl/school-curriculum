@@ -26,6 +26,7 @@ export interface GraphPoint {
   psFill: number[] | null;
   taxFill: number[] | null;
   subsidyFill: number[] | null;
+  dwlFill: number[] | null;
   // Allow dynamic keys for custom curves
   [key: string]: number | number[] | null | undefined;
 }
