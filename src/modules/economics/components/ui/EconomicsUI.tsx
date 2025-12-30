@@ -119,3 +119,55 @@ export const Slider: React.FC<SliderProps> = ({
     />
   </div>
 );
+
+// 1. Tooltip Types
+interface TooltipPayload {
+  name: string;
+  value: number | string | Array<number>;
+  color?: string;
+  stroke?: string;
+  fill?: string;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayload[];
+  label?: string | number;
+  isTheoretical?: boolean;
+}
+
+// 2. Custom Tooltip
+export const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, isTheoretical }) => {
+  if (!active || !payload || !payload.length) return null;
+
+  const visibleItems = payload.filter((item) => 
+    !Array.isArray(item.value) && item.value !== null && item.value !== undefined
+  );
+
+  if (visibleItems.length === 0) return null;
+  if (isTheoretical) return null;
+
+  return (
+    <div className="bg-white/95 border border-slate-200 p-3 rounded-lg shadow-sm text-sm" style={{ backdropFilter: 'blur(2px)' }}>
+      <p className="font-bold text-slate-700 mb-2 border-b border-slate-100 pb-1">
+        Quantity: {label}
+      </p>
+      <div className="space-y-1">
+        {visibleItems.map((item) => (
+          <div key={item.name} className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <div 
+                className="w-2.5 h-2.5 rounded-full" 
+                style={{ backgroundColor: item.color || item.stroke || item.fill }} 
+              />
+              <span className="text-slate-500 font-medium">{item.name}:</span>
+            </div>
+            <span className="font-mono font-semibold text-slate-600">
+              ${Number(item.value).toFixed(2)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
