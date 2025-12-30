@@ -18,8 +18,8 @@ export interface CustomCurve {
 
 export interface GraphPoint {
   q: number;
-  demand: number;
-  supply: number;
+  demand: number | null;
+  supply: number | null;
   supplyTax: number | null;
   supplySubsidy: number | null;
   csFill: number[] | null;

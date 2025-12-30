@@ -44,8 +44,8 @@ export const useSupplyDemandLogic = () => {
     const naturalEqP = dIntercept - dSlope * naturalEqQ;
 
     // --- B. AUTO-SCALE LOGIC ---
-    const demandMaxQ = dSlope !== 0 ? dIntercept / dSlope : 50;
-    const calculatedMaxQ = Math.max(naturalEqQ, demandMaxQ) * 1.15;
+    const demandInterceptQ = dSlope !== 0 ? dIntercept / dSlope : 0;
+    const calculatedMaxQ = Math.max(naturalEqQ, demandInterceptQ) * 1.15;
     const dynamicMaxQ = Math.max(20, Math.min(calculatedMaxQ, 500));
 
     // --- C. CALCULATE ACTUAL METRICS ---
@@ -53,34 +53,33 @@ export const useSupplyDemandLogic = () => {
     let priceConsumersPay = naturalEqP;
     let priceSuppliersKeep = naturalEqP;
 
-    // === FIX #1: Correct Price Calculation in Manual Mode ===
+    // Safety Clamp for Tax/Subsidy
+    const safeTax = Math.min(tax, dIntercept);
+    const safeSubsidy = Math.min(subsidy, dIntercept);
+
     if (manualPrice !== null) {
       priceConsumersPay = manualPrice;
-      
-      // Calculate what suppliers ACTUALLY keep (Price - Tax)
       if (showTax) {
-        priceSuppliersKeep = manualPrice - tax;
+        priceSuppliersKeep = manualPrice - safeTax;
       } else if (showSubsidy) {
-        priceSuppliersKeep = manualPrice + subsidy;
+        priceSuppliersKeep = manualPrice + safeSubsidy;
       } else {
         priceSuppliersKeep = manualPrice;
       }
-
       const qd = (dIntercept - priceConsumersPay) / dSlope;
       const qs = (priceSuppliersKeep - sIntercept) / sSlope;
       eqQ = Math.max(0, Math.min(qd, qs));
 
     } else if (showTax) {
-      eqQ = (dIntercept - (sIntercept + tax)) / (dSlope + sSlope);
+      eqQ = (dIntercept - (sIntercept + safeTax)) / (dSlope + sSlope);
       priceConsumersPay = dIntercept - dSlope * eqQ;
-      priceSuppliersKeep = priceConsumersPay - tax;
+      priceSuppliersKeep = priceConsumersPay - safeTax;
     } else if (showSubsidy) {
-      eqQ = (dIntercept - (sIntercept - subsidy)) / (dSlope + sSlope);
+      eqQ = (dIntercept - (sIntercept - safeSubsidy)) / (dSlope + sSlope);
       priceConsumersPay = dIntercept - dSlope * eqQ;
-      priceSuppliersKeep = priceConsumersPay + subsidy;
+      priceSuppliersKeep = priceConsumersPay + safeSubsidy;
     }
 
-    // Metrics (CS/PS)
     const heightAtQ = dIntercept - dSlope * eqQ;
     const totalWillingnessToPay = ((dIntercept + heightAtQ) / 2) * eqQ;
     const totalConsumerCost = priceConsumersPay * eqQ;
@@ -91,9 +90,8 @@ export const useSupplyDemandLogic = () => {
     const totalVariableCost = ((sIntercept + supplyHeightAtQ) / 2) * eqQ;
     const psValue = Math.max(0, totalRevenue - totalVariableCost);
 
-    // === FIX #2: Always calculate Tax/Subsidy Revenue ===
-    const taxRevenue = showTax ? tax * eqQ : 0;
-    const subsidyCost = showSubsidy ? subsidy * eqQ : 0;
+    const taxRevenue = showTax ? safeTax * eqQ : 0;
+    const subsidyCost = showSubsidy ? safeSubsidy * eqQ : 0;
 
     const quantityDistortion = Math.abs(naturalEqQ - eqQ);
     const demandAtEqQ = dIntercept - dSlope * eqQ;
@@ -108,53 +106,64 @@ export const useSupplyDemandLogic = () => {
     // --- D. GENERATE POINTS LOOP ---
     const step = dynamicMaxQ > 100 ? dynamicMaxQ / 100 : 1;
     const qValues = new Set<number>();
+    
+    // Standard points
     for (let q = 0; q <= dynamicMaxQ; q += step) qValues.add(Number(q.toFixed(2)));
+    
+    // Add Key Points
     if (eqQ >= 0 && eqQ <= dynamicMaxQ) qValues.add(Number(eqQ.toFixed(2)));
+    if (demandInterceptQ > 0 && demandInterceptQ <= dynamicMaxQ) {
+        qValues.add(Number(demandInterceptQ.toFixed(2)));
+    }
+
     const sortedQs = Array.from(qValues).sort((a, b) => a - b);
 
     sortedQs.forEach((q) => {
-      const pDemand = dIntercept - dSlope * q;
-      const pSupply = sIntercept + sSlope * q;
-      
-      // === FIX #3: Always show the lines ===
-      const pSupplyTax = showTax ? pSupply + tax : null;
-      const pSupplySubsidy = showSubsidy ? pSupply - subsidy : null;
-      
-      const isBelowEq = q <= eqQ + 0.001;
+      // Calculate raw prices
+      const rawDemand = dIntercept - dSlope * q;
+      const rawSupply = sIntercept + sSlope * q;
+      const rawSupplyTax = showTax ? rawSupply + safeTax : null;
+      const rawSupplySubsidy = showSubsidy ? rawSupply - safeSubsidy : null;
+
+      // === CLEAN LINE LOGIC ===
+      // Stop ALL lines if they go below zero (or slightly below zero due to float math)
+      // This matches your Custom Curve behavior
+      const demand = rawDemand >= -0.01 ? Math.max(0, rawDemand) : null;
+      const supply = rawSupply >= -0.01 ? Math.max(0, rawSupply) : null;
+      const supplyTax = (rawSupplyTax !== null && rawSupplyTax >= -0.01) ? Math.max(0, rawSupplyTax) : null;
+      const supplySubsidy = (rawSupplySubsidy !== null && rawSupplySubsidy >= -0.01) ? Math.max(0, rawSupplySubsidy) : null;
+
+      const isBelowEq = q <= eqQ + 0.001; 
+
+      // Fill Logic (Only fill if lines exist)
+      const csFill = showSurplus && isBelowEq && demand !== null ? [priceConsumersPay, demand] : null;
+      const psFill = showSurplus && isBelowEq && supply !== null ? [supply, priceSuppliersKeep] : null;
+      const taxFill = showSurplus && showTax && isBelowEq ? [priceSuppliersKeep, priceConsumersPay] : null;
+      const subsidyFill = showSurplus && showSubsidy && isBelowEq ? [priceConsumersPay, priceSuppliersKeep] : null;
 
       let dwlFill: number[] | null = null;
       if (showSurplus) {
-        if (eqQ < naturalEqQ) {
-          if (q >= eqQ && q <= naturalEqQ) dwlFill = [pSupply, pDemand];
-        } else if (eqQ > naturalEqQ) {
-          if (q >= naturalEqQ && q <= eqQ) dwlFill = [pDemand, pSupply];
+        // Only draw DWL if both lines exist at this Q
+        if (supply !== null && demand !== null) {
+            if (eqQ < naturalEqQ) {
+                if (q >= eqQ && q <= naturalEqQ) dwlFill = [supply, demand];
+            } else if (eqQ > naturalEqQ) {
+                if (q >= naturalEqQ && q <= eqQ) dwlFill = [demand, supply];
+            }
         }
       }
 
       data.push({
         q: q,
-        demand: Math.max(0, pDemand),
-        supply: pSupply,
-        supplyTax: pSupplyTax,
-        supplySubsidy: pSupplySubsidy,
-
-        // CS: Blue Area
-        csFill: showSurplus && isBelowEq ? [priceConsumersPay, pDemand] : null,
-        
-        // PS: Green Area (Correctly stops at priceSuppliersKeep)
-        psFill: showSurplus && isBelowEq ? [pSupply, priceSuppliersKeep] : null,
-        
-        // === FIX #4: Tax Fill (Orange Area) ===
-        // Removed 'manualPrice === null' so it shows up in manual mode too!
-        taxFill: showSurplus && showTax && isBelowEq
-            ? [priceSuppliersKeep, priceConsumersPay]
-            : null,
-            
-        subsidyFill: showSurplus && showSubsidy && isBelowEq
-            ? [priceConsumersPay, priceSuppliersKeep]
-            : null,
-            
-        dwlFill: dwlFill,
+        demand,
+        supply,
+        supplyTax,
+        supplySubsidy,
+        csFill,
+        psFill,
+        taxFill,
+        subsidyFill,
+        dwlFill
       });
     });
 

@@ -17,14 +17,14 @@ export const SupplyDemand = () => {
   const updateCurve = (
     id: string,
     field: keyof CustomCurve,
-    value: number | boolean
+    // We allow string just in case, but currently only numbers/booleans are used for linear
+    value: number | boolean | string 
   ) => {
     setCustomCurves((prevCurves) =>
       prevCurves.map((c) => (c.id === id ? { ...c, [field]: value } : c))
     );
   };
 
-  // Helper to switch between Numbers (50.00) and Variables (CS, PS)
   const formatMetric = (val: number, isTheoretical: boolean, label: string) => {
     if (!isTheoretical) return val;
     switch (label) {
@@ -40,12 +40,18 @@ export const SupplyDemand = () => {
 
   const mergedGraphData = useMemo(() => {
     return graphData.data.map((point) => {
-      // Cast to allow dynamic keys
-      const newPoint = { ...point } as GraphPoint & { [key: string]: number };
+      // FIX: Cast to allow 'number | null' so TypeScript doesn't complain
+      const newPoint = { ...point } as GraphPoint & { [key: string]: number | null };
 
       customCurves.forEach((curve) => {
+        // === STRICT LINEAR LOGIC ONLY ===
+        // Formula: P = Intercept + (Slope * Q)
         const price = curve.intercept + curve.slope * point.q;
-        newPoint[curve.id] = price > 0 ? price : 0;
+
+        // "Stop at Zero" Rule:
+        // If price goes below zero, return null to make the line stop drawing.
+        // We use -0.01 tolerance to catch floating point math errors.
+        newPoint[curve.id] = price >= -0.01 ? Math.max(0, price) : null;
       });
 
       return newPoint;
@@ -116,7 +122,7 @@ export const SupplyDemand = () => {
             showDemand={params.showDemand}
             showSupply={params.showSupply}
             customCurves={customCurves}
-            isTheoretical={params.isTheoretical} // Pass Theoretical Mode
+            isTheoretical={params.isTheoretical}
           />
         </div>
 
@@ -129,7 +135,7 @@ export const SupplyDemand = () => {
             addCurve={addCurve}
             removeCurve={removeCurve}
             updateCurve={updateCurve}
-            naturalEqP={graphData.naturalEqP} // Pass Natural Price for Reset
+            naturalEqP={graphData.naturalEqP}
           />
         </div>
       </div>
