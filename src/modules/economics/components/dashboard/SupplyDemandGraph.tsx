@@ -17,6 +17,65 @@ interface Props {
   isTheoretical?: boolean;
 }
 
+// 1. Define strict types for the Tooltip to satisfy the linter
+interface TooltipPayload {
+  name: string;
+  value: number | string | Array<number>;
+  color?: string;
+  stroke?: string;
+  fill?: string;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayload[];
+  label?: string | number;
+  isTheoretical?: boolean;
+}
+
+// 2. Custom Tooltip Component (Fixed Types & Gray Text)
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, isTheoretical }) => {
+  if (!active || !payload || !payload.length) return null;
+
+  // Filter out Arrays (Shading) and nulls
+  const visibleItems = payload.filter((item) => 
+    !Array.isArray(item.value) && item.value !== null && item.value !== undefined
+  );
+
+  if (visibleItems.length === 0) return null;
+  if (isTheoretical) return null;
+
+  return (
+    <div className="bg-white/95 border border-slate-200 p-3 rounded-lg shadow-sm text-sm" style={{ backdropFilter: 'blur(2px)' }}>
+      {/* Header */}
+      <p className="font-bold text-slate-700 mb-2 border-b border-slate-100 pb-1">
+        Quantity: {label}
+      </p>
+      
+      {/* Rows */}
+      <div className="space-y-1">
+        {visibleItems.map((item) => (
+          <div key={item.name} className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <div 
+                className="w-2.5 h-2.5 rounded-full" 
+                // Handle different color sources from Recharts
+                style={{ backgroundColor: item.color || item.stroke || item.fill }} 
+              />
+              <span className="text-slate-500 font-medium">{item.name}:</span>
+            </div>
+            
+            {/* === CHANGE IS HERE: Changed text-slate-900 (black) to text-slate-600 (gray) === */}
+            <span className="font-mono font-semibold text-slate-600">
+              ${Number(item.value).toFixed(2)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const SupplyDemandGraph: React.FC<Props> = ({
   data,
   showTax,
@@ -25,10 +84,9 @@ export const SupplyDemandGraph: React.FC<Props> = ({
   showSupply = true,
   eqData,
   customCurves,
-  isTheoretical = true,
+  isTheoretical = false,
 }) => {
   
-  // Dynamic Equilibrium Labels
   const eqPLabel = isTheoretical ? "P*" : `P*=$${eqData.priceConsumersPay.toFixed(2)}`;
   const eqQLabel = isTheoretical ? "Q*" : `Q*=${eqData.eqQ.toFixed(1)}`;
 
@@ -53,42 +111,18 @@ export const SupplyDemandGraph: React.FC<Props> = ({
           <XAxis 
             dataKey="q" 
             type="number" 
-            tick={!isTheoretical} // Hide numbers in Theoretical Mode
+            tick={!isTheoretical} 
             label={{ value: 'Quantity (Q)', position: 'insideBottomRight', offset: -10 }} 
           />
           <YAxis 
-            tick={!isTheoretical} // Hide numbers in Theoretical Mode
+            tick={!isTheoretical} 
             label={{ value: 'Price (P)', angle: -90, position: 'insideLeft' }} 
           />
           
-          <Tooltip
-            filterNull={true}
-            content={isTheoretical ? () => null : undefined}
-            
-            itemSorter={(item) => {
-              if (item.value && Array.isArray(item.value)) return -1;
-              return 1;
-            }}
-            
-            contentStyle={{
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              borderRadius: '8px',
-              border: '1px solid #e2e8f0',
-              padding: '8px 12px',
-            }}
-
-            formatter={(
-              value: number | string | Array<number | string> | readonly (number | string)[] | undefined | null,
-              name: string | undefined
-            ) => {
-              if (value === undefined || value === null || Array.isArray(value)) {
-                return [null, null];
-              }
-
-              // Formatting
-              return [`$${Number(value).toFixed(2)}`, name || ''];
-            }}
-            labelFormatter={(label) => `Quantity: ${label}`}
+          {/* Custom Tooltip */}
+          <Tooltip 
+            content={<CustomTooltip isTheoretical={isTheoretical} />}
+            cursor={{ stroke: '#cbd5e1', strokeWidth: 1 }}
           />
 
           {/* Areas */}
@@ -131,7 +165,7 @@ export const SupplyDemandGraph: React.FC<Props> = ({
             />
           ))}
 
-          {/* Equilibrium Dots & Lines */}
+          {/* Equilibrium Dots */}
           <ReferenceDot x={eqData.eqQ} y={eqData.priceConsumersPay} r={5} fill="#2563eb" stroke="none" />
           {showTax && <ReferenceDot x={eqData.eqQ} y={eqData.priceSuppliersKeep} r={5} fill="#10b981" stroke="none" />}
           {showSubsidy && <ReferenceDot x={eqData.eqQ} y={eqData.priceSuppliersKeep} r={5} fill="#10b981" stroke="white" />}

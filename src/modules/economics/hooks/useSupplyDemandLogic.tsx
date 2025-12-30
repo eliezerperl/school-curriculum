@@ -24,7 +24,7 @@ export const useSupplyDemandLogic = () => {
 
   const [manualPrice, setManualPrice] = useState<number | null>(null);
 
-  const [isTheoretical, setIsTheoretical] = useState(false);
+  const [isTheoretical, setIsTheoretical] = useState(true);
 
   // --- TOGGLE LOGIC ---
   const handleSetShowTax = (val: boolean) => {
