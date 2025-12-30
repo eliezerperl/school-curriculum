@@ -32,6 +32,7 @@ export const SupplyDemand = () => {
       case 'Producer Surplus': return "PS";
       case 'Tax Revenue': return "Tax Rev";
       case 'Subsidy Cost': return "Sub Cost";
+      case 'Deadweight Loss': return "DWL";
       case 'Total Welfare': return "Welfare";
       default: return "---";
     }
@@ -54,7 +55,7 @@ export const SupplyDemand = () => {
   return (
     <div className="space-y-4 flex flex-col">
       {/* 1. Metrics Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <MetricCard
           label="Consumer Surplus"
           value={formatMetric(graphData.metrics.csValue, params.isTheoretical, 'Consumer Surplus')}
@@ -81,6 +82,14 @@ export const SupplyDemand = () => {
             value={formatMetric(graphData.metrics.subsidyCost, params.isTheoretical, 'Subsidy Cost')}
             color="text-purple-600"
             bg="bg-purple-50"
+          />
+        )}
+        {graphData.metrics.deadweightLoss > 0.01 && (
+          <MetricCard
+            label="Deadweight Loss"
+            value={formatMetric(graphData.metrics.deadweightLoss, params.isTheoretical, 'Deadweight Loss')}
+            color="text-red-600"
+            bg="bg-red-50"
           />
         )}
         <MetricCard

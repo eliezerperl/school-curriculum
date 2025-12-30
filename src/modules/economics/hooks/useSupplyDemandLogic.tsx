@@ -93,6 +93,17 @@ export const useSupplyDemandLogic = () => {
     const taxRevenue = (showTax && manualPrice === null) ? tax * eqQ : 0;
     const subsidyCost = (showSubsidy && manualPrice === null) ? subsidy * eqQ : 0;
 
+    // 1. How far are we from the optimal quantity?
+    const quantityDistortion = Math.abs(naturalEqQ - eqQ);
+    
+    // 2. What is the vertical gap between Demand and Supply at the actual Q?
+    const demandAtEqQ = dIntercept - dSlope * eqQ;
+    const supplyAtEqQ = sIntercept + sSlope * eqQ;
+    const priceGap = Math.abs(demandAtEqQ - supplyAtEqQ);
+
+    // 3. Triangle Area Formula: 0.5 * Base * Height
+    const deadweightLoss = 0.5 * quantityDistortion * priceGap;
+
     const totalWelfare = showSubsidy
       ? csValue + psValue - subsidyCost
       : csValue + psValue + taxRevenue;
@@ -116,7 +127,6 @@ export const useSupplyDemandLogic = () => {
       const pSupply = sIntercept + sSlope * q;
       const pSupplyTax = (showTax && manualPrice === null) ? pSupply + tax : null;
       const pSupplySubsidy = (showSubsidy && manualPrice === null) ? pSupply - subsidy : null;
-
       const isBelowEq = q <= eqQ + 0.001; 
 
       data.push({
@@ -143,13 +153,12 @@ export const useSupplyDemandLogic = () => {
       priceConsumersPay,
       priceSuppliersKeep,
       naturalEqP,
-      metrics: { csValue, psValue, taxRevenue, subsidyCost, totalWelfare },
-      // Export maxQ so UI can see it if needed, though we don't strictly need to
+      metrics: { csValue, psValue, taxRevenue, subsidyCost, totalWelfare, deadweightLoss },
       maxQ: dynamicMaxQ 
     };
   }, [
     dIntercept, dSlope, sIntercept, sSlope, tax, showTax, subsidy, showSubsidy, 
-    showSurplus, manualPrice // Remove maxQ dependency since it's now derived
+    showSurplus, manualPrice
   ]);
 
   const params: EconomicsParams = {

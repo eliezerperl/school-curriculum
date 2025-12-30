@@ -76,11 +76,11 @@ export const ViewSettings: React.FC<Props> = ({
           {/* RESET BUTTON - Only shows if we are in Manual Mode */}
           {manualPrice !== null && (
             <button
-              onClick={handleReset}
-              className="flex items-center gap-1 text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-200 transition-colors font-bold">
-              <RotateCcw size={10} />
-              Reset to Optimal
-            </button>
+            onClick={handleReset}
+            title="Reset Curves"
+            className="text-gray-400 hover:text-indigo-600 hover:rotate-180 transition-all duration-300">
+            <RotateCcw size={14} />
+          </button>
           )}
         </div>
 
