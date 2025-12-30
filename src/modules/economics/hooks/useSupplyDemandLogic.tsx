@@ -2,17 +2,18 @@ import { useState, useMemo } from 'react';
 import type { GraphPoint, EconomicsParams, EconomicsSetters } from '../types';
 
 export const useSupplyDemandLogic = () => {
-  // --- STATE ---
-  const [maxQ, setMaxQ] = useState(120);
+  // --- 1. STATE ---
+
+  
   const [maxP, setMaxP] = useState(200);
   const [calcMode, setCalcMode] = useState<'findP' | 'findQ'>('findP');
   const [calcInput, setCalcInput] = useState<number>(0);
 
-  const [dIntercept, setDIntercept] = useState(150);
+  const [dIntercept, setDIntercept] = useState(100);
   const [dSlope, setDSlope] = useState(1);
   const [showDemand, setShowDemand] = useState(true);
 
-  const [sIntercept, setSIntercept] = useState(50);
+  const [sIntercept, setSIntercept] = useState(10);
   const [sSlope, setSSlope] = useState(1);
   const [showSupply, setShowSupply] = useState(true);
 
@@ -23,10 +24,9 @@ export const useSupplyDemandLogic = () => {
   const [showSurplus, setShowSurplus] = useState(true);
 
   const [manualPrice, setManualPrice] = useState<number | null>(null);
+  const [isTheoretical, setIsTheoretical] = useState(false);
 
-  const [isTheoretical, setIsTheoretical] = useState(true);
-
-  // --- TOGGLE LOGIC ---
+  // --- 2. TOGGLE LOGIC ---
   const handleSetShowTax = (val: boolean) => {
     setShowTax(val);
     if (val) setShowSubsidy(false);
@@ -37,102 +37,105 @@ export const useSupplyDemandLogic = () => {
     if (val) setShowTax(false);
   };
 
-  // --- MATH ENGINE ---
+  // --- 3. MATH ENGINE ---
   const graphData = useMemo(() => {
     const data: GraphPoint[] = [];
 
-    // 1. Calculate Natural Equilibrium first (we need this for the Reset logic)
+    // --- A. CALCULATE EQUILIBRIUM ---
     const naturalEqQ = (dIntercept - sIntercept) / (dSlope + sSlope);
     const naturalEqP = dIntercept - dSlope * naturalEqQ;
 
-    // 2. Determine ACTUAL Price and Quantity
+    // --- B. AUTO-SCALE LOGIC (NEW) ---
+    // 1. Where does Demand hit Price = 0? (Maximum meaningful quantity)
+    const demandMaxQ = dSlope !== 0 ? dIntercept / dSlope : 50;
+    
+    // 2. Base our scale on the larger of: Equilibrium OR Max Demand
+    // We add 15% padding so the lines don't touch the very edge
+    const calculatedMaxQ = Math.max(naturalEqQ, demandMaxQ) * 1.15;
+
+    // 3. Safety Clamps:
+    // Minimum 20 (so graph doesn't vanish if numbers are 0)
+    // Maximum 500 (so browser doesn't freeze if slope is 0.001)
+    const dynamicMaxQ = Math.max(20, Math.min(calculatedMaxQ, 500));
+
+    // --- C. CALCULATE ACTUAL METRICS ---
     let eqQ = naturalEqQ;
     let priceConsumersPay = naturalEqP;
     let priceSuppliersKeep = naturalEqP;
 
     if (manualPrice !== null) {
-      // === MANUAL MODE (Monopoly / Price Control) ===
       priceConsumersPay = manualPrice;
-      priceSuppliersKeep = manualPrice; // Ignoring tax for simplicity in manual mode
-
-      // Quantity Demanded at this price
+      priceSuppliersKeep = manualPrice;
       const qd = (dIntercept - manualPrice) / dSlope;
-      // Quantity Supplied at this price
       const qs = (manualPrice - sIntercept) / sSlope;
-
-      // The market trades at the LOWER of the two (Short Side Rule)
-      // e.g., if Price is high, only Qd is bought. If Price is low, only Qs is sold.
       eqQ = Math.max(0, Math.min(qd, qs));
     } else if (showTax) {
-      // Tax Logic
       eqQ = (dIntercept - (sIntercept + tax)) / (dSlope + sSlope);
       priceConsumersPay = dIntercept - dSlope * eqQ;
       priceSuppliersKeep = priceConsumersPay - tax;
     } else if (showSubsidy) {
-      // Subsidy Logic
       eqQ = (dIntercept - (sIntercept - subsidy)) / (dSlope + sSlope);
       priceConsumersPay = dIntercept - dSlope * eqQ;
       priceSuppliersKeep = priceConsumersPay + subsidy;
     }
 
-    // --- METRICS CALCULATION ---
-    // Consumer Surplus: Area below Demand, above Price, up to Q
-    // Area of Trapezoid: (TopBase + BottomBase) / 2 * Height
-    // Or simpler: Total Utility - Cost
-    // CS = Integral(0 to Q) of (Demand - PricePaid)
-    // Since Demand is linear: 0.5 * Q * (Intercept - PriceAtQ) + Q * (PriceAtQ - PricePaid)
-    // Let's stick to the triangle formula which works if Q matches Demand.
-    // If Q < Qd (Shortage), it's a Trapezoid.
-
-    // Robust CS Calc (Area under Demand curve - Price Paid)
-    const totalWillingnessToPay =
-      ((dIntercept + (dIntercept - dSlope * eqQ)) / 2) * eqQ;
+    // Metrics (CS/PS)
+    const heightAtQ = dIntercept - dSlope * eqQ;
+    const totalWillingnessToPay = ((dIntercept + heightAtQ) / 2) * eqQ;
     const totalConsumerCost = priceConsumersPay * eqQ;
     const csValue = Math.max(0, totalWillingnessToPay - totalConsumerCost);
 
-    // Robust PS Calc (Total Revenue - Area under Supply curve)
+    const supplyHeightAtQ = sIntercept + sSlope * eqQ;
     const totalRevenue = priceSuppliersKeep * eqQ;
-    const totalVariableCost =
-      ((sIntercept + (sIntercept + sSlope * eqQ)) / 2) * eqQ;
+    const totalVariableCost = ((sIntercept + supplyHeightAtQ) / 2) * eqQ;
     const psValue = Math.max(0, totalRevenue - totalVariableCost);
 
-    const taxRevenue = showTax && manualPrice === null ? tax * eqQ : 0;
-    const subsidyCost = showSubsidy && manualPrice === null ? subsidy * eqQ : 0;
+    const taxRevenue = (showTax && manualPrice === null) ? tax * eqQ : 0;
+    const subsidyCost = (showSubsidy && manualPrice === null) ? subsidy * eqQ : 0;
 
     const totalWelfare = showSubsidy
       ? csValue + psValue - subsidyCost
       : csValue + psValue + taxRevenue;
 
-    // --- GRAPH POINTS GENERATION ---
-    const step = maxQ > 500 ? maxQ / 100 : 1;
-    for (let q = 0; q <= maxQ; q += step) {
+    // --- D. GENERATE POINTS LOOP (USING DYNAMIC MAX) ---
+    const step = dynamicMaxQ > 100 ? dynamicMaxQ / 100 : 1;
+    
+    const qValues = new Set<number>();
+    for (let q = 0; q <= dynamicMaxQ; q += step) {
+      qValues.add(Number(q.toFixed(2)));
+    }
+    // Ensure exact Equilibrium point exists for perfect shading
+    if (eqQ >= 0 && eqQ <= dynamicMaxQ) {
+      qValues.add(Number(eqQ.toFixed(2)));
+    }
+
+    const sortedQs = Array.from(qValues).sort((a, b) => a - b);
+
+    sortedQs.forEach((q) => {
       const pDemand = dIntercept - dSlope * q;
       const pSupply = sIntercept + sSlope * q;
-      const pSupplyTax = showTax ? pSupply + tax : null;
-      const pSupplySubsidy = showSubsidy ? pSupply - subsidy : null;
+      const pSupplyTax = (showTax && manualPrice === null) ? pSupply + tax : null;
+      const pSupplySubsidy = (showSubsidy && manualPrice === null) ? pSupply - subsidy : null;
 
-      const isBelowEq = q <= eqQ;
+      const isBelowEq = q <= eqQ + 0.001; 
 
       data.push({
-        q: Number(q.toFixed(1)),
+        q: q,
         demand: Math.max(0, pDemand),
         supply: pSupply,
         supplyTax: pSupplyTax,
         supplySubsidy: pSupplySubsidy,
-
-        // Shading Logic
+        
         csFill: showSurplus && isBelowEq ? [priceConsumersPay, pDemand] : null,
         psFill: showSurplus && isBelowEq ? [pSupply, priceSuppliersKeep] : null,
-        taxFill:
-          showSurplus && showTax && manualPrice === null && isBelowEq
-            ? [priceSuppliersKeep, priceConsumersPay]
-            : null,
-        subsidyFill:
-          showSurplus && showSubsidy && manualPrice === null && isBelowEq
-            ? [priceConsumersPay, priceSuppliersKeep]
-            : null,
+        taxFill: showSurplus && showTax && manualPrice === null && isBelowEq 
+          ? [priceSuppliersKeep, priceConsumersPay] 
+          : null,
+        subsidyFill: showSurplus && showSubsidy && manualPrice === null && isBelowEq 
+          ? [priceConsumersPay, priceSuppliersKeep] 
+          : null,
       });
-    }
+    });
 
     return {
       data,
@@ -141,59 +144,34 @@ export const useSupplyDemandLogic = () => {
       priceSuppliersKeep,
       naturalEqP,
       metrics: { csValue, psValue, taxRevenue, subsidyCost, totalWelfare },
+      // Export maxQ so UI can see it if needed, though we don't strictly need to
+      maxQ: dynamicMaxQ 
     };
   }, [
-    dIntercept,
-    dSlope,
-    sIntercept,
-    sSlope,
-    tax,
-    showTax,
-    subsidy,
-    showSubsidy,
-    showSurplus,
-    maxQ,
-    manualPrice,
+    dIntercept, dSlope, sIntercept, sSlope, tax, showTax, subsidy, showSubsidy, 
+    showSurplus, manualPrice // Remove maxQ dependency since it's now derived
   ]);
 
   const params: EconomicsParams = {
-    dIntercept,
-    dSlope,
-    showDemand,
-    sIntercept,
-    sSlope,
-    showSupply,
-    tax,
-    showTax,
-    subsidy,
-    showSubsidy,
-    showSurplus,
+    dIntercept, dSlope, showDemand,
+    sIntercept, sSlope, showSupply,
+    tax, showTax, subsidy, showSubsidy, showSurplus,
     manualPrice,
     isTheoretical,
-    maxQ,
-    maxP,
-    calcMode,
-    calcInput,
+    maxQ: graphData.maxQ, // Use the calculated one
+    maxP, calcMode, calcInput,
   };
 
   const setters: EconomicsSetters = {
-    setDIntercept,
-    setDSlope,
-    setShowDemand,
-    setSIntercept,
-    setSSlope,
-    setShowSupply,
-    setTax,
-    setShowTax: handleSetShowTax,
-    setSubsidy,
-    setShowSubsidy: handleSetShowSubsidy,
+    setDIntercept, setDSlope, setShowDemand,
+    setSIntercept, setSSlope, setShowSupply,
+    setTax, setShowTax: handleSetShowTax,
+    setSubsidy, setShowSubsidy: handleSetShowSubsidy,
     setShowSurplus,
     setManualPrice,
     setIsTheoretical,
-    setMaxQ,
-    setMaxP,
-    setCalcMode,
-    setCalcInput,
+    setMaxQ: () => {}, // Disable manual setting
+    setMaxP, setCalcMode, setCalcInput,
   };
 
   return { params, setters, graphData };
