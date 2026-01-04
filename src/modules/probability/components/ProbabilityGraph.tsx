@@ -15,13 +15,13 @@ import type { ProbabilityPoint } from '../types';
 
 interface Props {
   type: 'discrete' | 'continuous';
-  data: ProbabilityPoint[]; // 2. Apply the interface here
+  data: ProbabilityPoint[];
   showCDF: boolean;
 }
 
 export const ProbabilityGraph: React.FC<Props> = ({ type, data, showCDF }) => {
   return (
-    <div className="bg-white p-4 rounded-xl shadow-lg border border-slate-100 h-[60vh] w-full">
+    <div className="bg-white p-4 rounded-xl shadow-lg border border-slate-100 h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
