@@ -141,7 +141,7 @@ export const ProbabilityDashboard: React.FC = () => {
       <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-10rem)]">
         
         {/* LEFT: GRAPH */}
-        <div className="flex-1 min-h-[500px]">
+        <div className="flex-1 min-h-125">
           {viewMode === '2D' ? (
             <ProbabilityGraph 
               type={distType === 'normal' ? 'continuous' : 'discrete'} 
