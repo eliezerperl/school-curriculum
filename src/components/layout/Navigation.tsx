@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, BookOpen, TrendingUp, Sigma, Code } from 'lucide-react';
+import { Menu, X, BookOpen, TrendingUp, Sigma, Code, BarChart3 } from 'lucide-react'; // Added BarChart3
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export const Navigation: React.FC = () => {
@@ -22,15 +22,20 @@ export const Navigation: React.FC = () => {
       path: '/calculus',
     },
     {
+      name: 'Probability', // === NEW SECTION ===
+      icon: <BarChart3 size={18} />,
+      path: '/probability',
+    },
+    {
       name: 'Python',
       icon: <Code size={18} />,
-      path: '/python', // Placeholder for later
+      path: '/python', 
     },
   ];
 
   const handleNavigate = (path: string) => {
     navigate(path);
-    setIsOpen(false); // Close drawer after clicking
+    setIsOpen(false); 
   };
 
   return (
@@ -57,12 +62,11 @@ export const Navigation: React.FC = () => {
         />
       )}
 
-      {/* 3. SIDEBAR DRAWER (Slides from LEFT) */}
+      {/* 3. SIDEBAR DRAWER */}
       <div
         className={`fixed top-0 left-0 h-full w-72 bg-slate-900 text-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
-        {/* Sidebar Header */}
         <div className="p-6 flex justify-between items-center border-b border-slate-800">
           <div className="flex items-center gap-3">
             <div className="bg-blue-600 p-2 rounded-lg">
@@ -77,16 +81,13 @@ export const Navigation: React.FC = () => {
           </button>
         </div>
 
-        {/* Navigation Links */}
         <nav className="p-4 space-y-2">
           <p className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-4">
             Modules
           </p>
 
           {modules.map((mod) => {
-            // Check if this module is the current one
             const active = isActive(mod.path);
-
             return (
               <button
                 key={mod.name}
@@ -103,7 +104,6 @@ export const Navigation: React.FC = () => {
           })}
         </nav>
 
-        {/* Footer / User Info */}
         <div className="absolute bottom-0 w-full p-6 border-t border-slate-800">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-slate-400">

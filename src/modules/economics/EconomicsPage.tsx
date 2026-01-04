@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, Globe, BarChart3 } from 'lucide-react'; 
-import { DockTab } from '../../../components/layout/DockTab';
-import { DashboardLayout } from '../../../components/layout/DashboardLayout';
-import { Tools } from '../components/Tools';
-import { SupplyDemand } from '../components/dashboard/SupplyDemand';
+import { DashboardLayout } from '../../components/layout/DashboardLayout';
+import { DockTab } from '../../components/layout/DockTab';
+import { SupplyDemand } from './components/dashboard/SupplyDemand';
+import { Tools } from './components/Tools';
+
 
 
 
